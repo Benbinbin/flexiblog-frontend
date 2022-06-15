@@ -8,7 +8,7 @@
   </div>
 </template>
 
-<style lang="postcss">
+<style lang="scss">
 body {
   @apply bg-gray-50 dark:bg-gray-900;
 }
