@@ -1,18 +1,14 @@
+<script setup lang="ts">
+import type { NavItem } from '@nuxt/content/dist/runtime/types'
+const { data: navArr } = await useAsyncData('navigation', () => fetchContentNavigation())
+
+// console.log(navArr)
+</script>
 <template>
   <div class="flex justify-between items-start max-w-2xl px-4 py-4 mx-auto sm:px-8">
     <!-- Navigation -->
     <div class="text-gray-700 dark:text-gray-200">
-      <ContentNavigation v-slot="{ navigation }">
-        <NuxtLink
-          v-for="link in navigation"
-          :key="link._path"
-          :to="link._path"
-          active-class="font-bold"
-          class="mr-4"
-        >
-          {{ link.navTitle || link.title }}
-        </NuxtLink>
-      </ContentNavigation>
+      <NavList :navigation="navArr as NavItem[]" />
     </div>
     <!-- Social icons & Color Mode -->
     <div class="space-x-3 text-gray-500 transition">

@@ -31,6 +31,16 @@ copyContentImages('content', 'public', ['.md'])
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
+  app: {
+    head: {
+      link: [
+        {
+          rel: 'stylesheet',
+          href: 'https://cdn.jsdelivr.net/npm/katex@0.15.0/dist/katex.min.css'
+        }
+      ]
+    }
+  },
   typescript: {
     shim: false
   },
@@ -51,6 +61,10 @@ export default defineNuxtConfig({
     highlight: {
       // See the available themes on https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-theme
       theme: 'dracula'
+    },
+    markdown: {
+      remarkPlugins: ['remark-math'],
+      rehypePlugins: ['rehype-katex']
     }
   }
 })

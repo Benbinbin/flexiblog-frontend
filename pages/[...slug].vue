@@ -1,3 +1,6 @@
+<script setup lang="ts">
+// import '~/assets/katex@0.15.0.min.css'
+</script>
 <template>
   <div class="max-w-2xl px-4 py-10 m-auto bg-white sm:px-8 sm:shadow dark:bg-gray-800 sm:rounded">
     <!-- Fetch and display the Markdown document from current path -->
