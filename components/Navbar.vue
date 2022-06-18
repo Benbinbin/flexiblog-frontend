@@ -38,7 +38,7 @@ const changeFlexiMode = () => {
     <NuxtLink :to="'/'" class="hover:">
       <img src="@/assets/avatar.png" alt="avatar" class="w-8 h-8 rounded-full">
     </NuxtLink>
-    <div class="flex items-center gap-6">
+    <div class="hidden sm:flex items-center gap-6">
       <button class="btn">
         Category
       </button>
@@ -50,7 +50,7 @@ const changeFlexiMode = () => {
       </button>
       <button
         :title="`toggle flex mode to ${flexiMode === 'blog' ? 'note' : 'blog'}`"
-        class="btn w-10 h-10 flex justify-center items-center gap-1 bg-blue-100 hover:bg-blue-200 transition-colors duration-300 rounded-lg"
+        class="w-10 h-10 flex justify-center items-center gap-1 bg-blue-100 hover:bg-blue-50 transition-colors duration-300 rounded-lg"
         :class="flexiMode === 'blog' ? 'flex-col' : 'flex-row'"
         @click="changeFlexiMode"
       >
@@ -66,6 +66,6 @@ const changeFlexiMode = () => {
 
 <style scoped lang="scss">
 .btn {
-  @apply p-2 font-bold text-blue-500 hover:bg-blue-100 transition-colors duration-300 rounded-md
+  @apply p-2 font-bold text-blue-500 hover:bg-blue-50 transition-colors duration-300 rounded-md
 }
 </style>

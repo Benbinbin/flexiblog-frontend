@@ -3,6 +3,8 @@ import type { NavItem, QueryBuilderParams } from '@nuxt/content/dist/runtime/typ
 
 const { data: navData } = await useAsyncData('navigation', () => fetchContentNavigation())
 
+// console.log(navData)
+
 let categoryArr
 
 if (Array.isArray(navData.value) && navData.value.findIndex(item => item.title === 'Article') !== -1) {
@@ -10,8 +12,8 @@ if (Array.isArray(navData.value) && navData.value.findIndex(item => item.title =
 }
 
 const queryCategoryArticlesParams: QueryBuilderParams = {
-  limit: 8,
-  only: ['title', 'description', 'cover', '_path']
+  limit: 5,
+  only: ['title', 'description', '_path', 'cover', 'series', 'seriesOrder', 'tags']
 }
 
 // const flexiMode = useFlexiMode()
@@ -22,10 +24,12 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
   <div>
     <NuxtLayout name="base">
       <div class="container px-8 py-16 mx-auto ">
-        <div class="p-8 w-full flex flex-col sm:flex-row justify-between items-center sm:item-start gap-16 rounded-xl bg-blue-100">
-          <ContentDoc class="content-container space-y-16">
+        <div
+          class="p-8 sm:p-16 w-full flex flex-col sm:flex-row justify-between items-center sm:item-start gap-16 rounded-xl bg-blue-100"
+        >
+          <ContentDoc class="content-container space-y-8">
             <template #not-found>
-              <div class="content-container space-y-16">
+              <div class="content-container space-y-8">
                 <h1>
                   Hi, welcome to my blog
                 </h1>
@@ -44,33 +48,100 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
           <img src="avatar.png" alt="avatar" class="hidden sm:block w-28 h-28 rounded-full">
         </div>
       </div>
-      <div v-if="categoryArr" class="container p-8 mx-auto space-y-10">
+      <div v-if="categoryArr" class="container p-8 mx-auto space-y-8">
         <template v-for="category in categoryArr.children as NavItem[]">
-          <section v-if="category.children" :key="category._path" class="w-full sm:w-4/5 mx-auto space-y-2">
+          <section v-if="category.children" :key="category._path" class="w-full sm:w-4/5 mx-auto space-y-4">
             <div class="flex justify-between items-start">
               <h2 class="pl-1 font-bold text-lg text-gray-500 border-l-8 border-blue-400">
                 {{ category.title }}
               </h2>
               <NuxtLink
                 :to="`/list?category=${category.title}`"
-                class="p-2 text-xs text-blue-500 font-bold bg-blue-100 hover:bg-blue-200 transition-colors duration-300 rounded-lg"
+                class="p-2 text-xs text-blue-500 font-bold bg-blue-100 hover:bg-blue-50 transition-colors duration-300 rounded-lg"
               >
                 More
               </NuxtLink>
             </div>
-            <div class="space-y-4 divide-y divide-gray-200">
+            <div
+              class="scroll-container sm:px-4 flex flex-row sm:flex-col gap-2 overflow-x-auto sm:divide-y sm:divide-gray-200"
+            >
               <ContentList v-slot="{ list }" :path="category._path" :query="queryCategoryArticlesParams">
-                <div v-for="article in list" :key="article._path" class="py-6">
-                  <div class="grow space-y-4">
+                <div
+                  v-for="article in list"
+                  :key="article._path"
+                  class="pb-4 hidden sm:block relative z-10 rounded-xl "
+                >
+                  <div
+                    v-if="article.cover"
+                    :style="`background-image: url('/covers/${article.cover}'); `"
+                    class="w-1/5 h-full absolute top-2 right-0 -z-10 bg-contain bg-right-top bg-no-repeat"
+                  >
+                    <div
+                      class="absolute inset-0"
+                      style="background: linear-gradient(30deg, rgba(249,250,251,1) 50%, rgba(249,250,251,0.8) 100%)"
+                    />
+                  </div>
+
+                  <NuxtLink
+                    :to="article._path"
+                    class="block pt-4 pb-2 text-2xl font-bold text-gray-600 hover:text-blue-400 transition-colors duration-300"
+                  >
+                    {{ article.title || "This Post Hasn't Title Yet" }}
+                  </NuxtLink>
+                  <p v-if="article.description" class="text-gray-400">
+                    {{ article.description }}
+                  </p>
+                  <!-- <pre>{{ article }}</pre> -->
+                  <div v-if="article.tags" class="pt-2 flex sm:flex-wrap gap-2">
                     <NuxtLink
-                      :to="article._path"
-                      class="block text-3xl font-bold text-gray-600 hover:text-blue-400 transition-colors duration-300"
+                      v-for="tag in article.tags"
+                      :key="tag"
+                      :to="{ path: '/list', query: { tags: [tag] } }"
+                      class="px-2 py-1 text-xs text-blue-400 hover:text-blue-500 bg-blue-50 transition-colors duration-300 rounded"
                     >
-                      {{ article.title || "This Post Hasn't Title Yet" }}
+                      #{{ tag }}
                     </NuxtLink>
-                    <p v-if="article.description" class="text-gray-400">
+                  </div>
+                </div>
+                <div
+                  v-for="article in list"
+                  :key="article._path"
+                  class="shrink-0 flex flex-col sm:hidden w-4/5 relative z-10 border rounded-lg overflow-hidden "
+                >
+                  <div
+                    v-if="article.cover"
+                    :style="`background-image: url('/covers/${article.cover}'); `"
+                    class="w-full h-full absolute -top-2 -left-2 -z-10 bg-contain bg-left-top bg-no-repeat"
+                  >
+                    <div
+                      class="absolute inset-0"
+                      style="background: linear-gradient(315deg, rgba(249,250,251,1) 80%, rgba(249,250,251,0.3) 100%)"
+                    />
+                  </div>
+
+                  <NuxtLink
+                    :to="article._path"
+                    class="grow text-xl p-6 text-gray-600 hover:text-blue-400 transition-colors duration-300 space-y-4"
+                  >
+                    <h3 class="font-bold">
+                      {{ article.title || "This Post Hasn't Title Yet" }}
+                    </h3>
+                    <p v-if="article.description" class="text-gray-400 text-sm">
                       {{ article.description }}
                     </p>
+                  </NuxtLink>
+                  <div
+                    v-if="article.tags"
+                    class="scroll-container shrink-0 p-6 flex sm:flex-wrap gap-1 overflow-x-auto"
+                  >
+                    <NuxtLink
+                      v-for="tag in article.tags"
+                      :key="tag"
+                      :to="{ path: '/list', query: { tags: [tag] } }"
+                      class="shrink-0 px-2 py-1 text-xs text-blue-400 hover:text-blue-500 bg-blue-50 transition-colors duration-300 rounded"
+                    >
+                      #{{ tag }}
+                    </NuxtLink>
                   </div>
                 </div>
               </ContentList>
@@ -88,6 +159,10 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
 }
 
 .content-container * {
-  @apply text-blue-500 text-xl
+  @apply text-blue-500 text-2xl
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
 }
 </style>

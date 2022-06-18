@@ -33,7 +33,7 @@ onMounted(() => {
       <Style type="text/css" children="html, body { scroll-behavior: smooth;}" />
     </Head>
 
-    <NavBar class="sticky top-0 inset-x-0 bg-gray-50" />
+    <NavBar class="sm:sticky top-0 inset-x-0 bg-gray-50" />
     <div class="flex-grow">
       <slot />
     </div>
