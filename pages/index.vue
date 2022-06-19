@@ -5,10 +5,10 @@ const { data: navData } = await useAsyncData('navigation', () => fetchContentNav
 
 // console.log(navData)
 
-let categoryArr
+let articleFolder
 
 if (Array.isArray(navData.value) && navData.value.findIndex(item => item.title === 'Article') !== -1) {
-  categoryArr = navData.value.find(elem => elem.title === 'Article')
+  articleFolder = navData.value.find(elem => elem.title.toLowerCase() === 'article')
 }
 
 const queryCategoryArticlesParams: QueryBuilderParams = {
@@ -48,15 +48,15 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
           <img src="avatar.png" alt="avatar" class="hidden sm:block w-28 h-28 rounded-full">
         </div>
       </div>
-      <div v-if="categoryArr" class="container p-8 mx-auto space-y-8">
-        <template v-for="category in categoryArr.children as NavItem[]">
+      <div v-if="articleFolder" class="container p-8 mx-auto space-y-8">
+        <template v-for="category in articleFolder.children as NavItem[]">
           <section v-if="category.children" :key="category._path" class="w-full sm:w-4/5 mx-auto space-y-4">
             <div class="flex justify-between items-start">
               <h2 class="pl-1 font-bold text-lg text-gray-500 border-l-8 border-blue-400">
                 {{ category.title }}
               </h2>
               <NuxtLink
-                :to="`/list?category=${category.title}`"
+                :to="{path: '/list', query: {category: category.title}}"
                 class="p-2 text-xs text-blue-500 font-bold bg-blue-100 hover:bg-blue-50 transition-colors duration-300 rounded-lg"
               >
                 More
@@ -82,40 +82,46 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                     />
                   </div>
 
-                  <NuxtLink
-                    :to="article._path"
-                    class="block pt-4 pb-2 text-2xl font-bold text-gray-600 hover:text-blue-400 transition-colors duration-300"
-                  >
-                    {{ article.title || "This Post Hasn't Title Yet" }}
+                  <NuxtLink :to="article._path" class="group block py-4 transition-colors duration-300 space-y-2">
+                    <h3 class="font-bold text-2xl text-gray-600 group-hover:text-blue-400">
+                      {{ article.title || "This Post Hasn't Title Yet" }}
+                    </h3>
+                    <p v-if="article.description" class="text-gray-400">
+                      {{ article.description }}
+                    </p>
                   </NuxtLink>
-                  <p v-if="article.description" class="text-gray-400">
-                    {{ article.description }}
-                  </p>
-                  <!-- <pre>{{ article }}</pre> -->
-                  <div v-if="article.tags" class="pt-2 flex sm:flex-wrap gap-2">
-                    <NuxtLink
-                      v-for="tag in article.tags"
-                      :key="tag"
-                      :to="{ path: '/list', query: { tags: [tag] } }"
-                      class="px-2 py-1 text-xs text-blue-400 hover:text-blue-500 bg-blue-50 transition-colors duration-300 rounded"
+
+                  <div class="flex justify-between items-start gap-4">
+                    <div v-if="article.tags" class="grow flex flex-wrap gap-2">
+                      <NuxtLink
+                        v-for="tag in article.tags"
+                        :key="tag"
+                        :to="{ path: '/list', query: { tags: [tag] } }"
+                        class="px-2 py-1 text-xs text-blue-400 hover:text-blue-500 bg-blue-50 transition-colors duration-300 rounded"
+                      >
+                        #{{ tag }}
+                      </NuxtLink>
+                    </div>
+                    <button
+                      class="shrink-0 px-2 py-1 flex justify-center items-center text-green-400 hover:text-green-500 bg-green-50 transition-colors duration-300 rounded"
                     >
-                      #{{ tag }}
-                    </NuxtLink>
+                      <IconCustom name="bi:collection" class="h-4" />
+                    </button>
                   </div>
                 </div>
                 <div
                   v-for="article in list"
                   :key="article._path"
-                  class="shrink-0 flex flex-col sm:hidden w-4/5 relative z-10 border rounded-lg overflow-hidden "
+                  class="shrink-0 flex flex-col sm:hidden w-5/6 relative z-10 border rounded-lg overflow-hidden "
                 >
                   <div
                     v-if="article.cover"
                     :style="`background-image: url('/covers/${article.cover}'); `"
-                    class="w-full h-full absolute -top-2 -left-2 -z-10 bg-contain bg-left-top bg-no-repeat"
+                    class="w-2/3 h-2/3 absolute bottom-2 right-2 -z-10 bg-contain bg-right-bottom bg-no-repeat"
                   >
                     <div
                       class="absolute inset-0"
-                      style="background: linear-gradient(315deg, rgba(249,250,251,1) 80%, rgba(249,250,251,0.3) 100%)"
+                      style="background: linear-gradient(135deg, rgba(249,250,251,1) 60%, rgba(249,250,251,0.8) 80%, rgba(249,250,251,0.6) 100%);"
                     />
                   </div>
 
@@ -130,18 +136,22 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                       {{ article.description }}
                     </p>
                   </NuxtLink>
-                  <div
-                    v-if="article.tags"
-                    class="scroll-container shrink-0 p-6 flex sm:flex-wrap gap-1 overflow-x-auto"
-                  >
-                    <NuxtLink
-                      v-for="tag in article.tags"
-                      :key="tag"
-                      :to="{ path: '/list', query: { tags: [tag] } }"
-                      class="shrink-0 px-2 py-1 text-xs text-blue-400 hover:text-blue-500 bg-blue-50 transition-colors duration-300 rounded"
+                  <div class="shrink-0 px-6 pb-6 flex justify-between items-start gap-2">
+                    <div v-if="article.tags" class="scroll-container grow flex sm:flex-wrap gap-1 overflow-x-auto">
+                      <NuxtLink
+                        v-for="tag in article.tags"
+                        :key="tag"
+                        :to="{ path: '/list', query: { tags: [tag, 'HTML'] } }"
+                        class="shrink-0 px-2 py-1 text-xs text-blue-400 hover:text-blue-500 bg-blue-50 transition-colors duration-300 rounded"
+                      >
+                        #{{ tag }}
+                      </NuxtLink>
+                    </div>
+                    <button
+                      class="shrink-0 px-2 py-1 flex justify-center items-center text-green-400 hover:text-green-500 bg-green-50  transition-colors duration-300 rounded"
                     >
-                      #{{ tag }}
-                    </NuxtLink>
+                      <IconCustom name="bi:collection" class="h-4" />
+                    </button>
                   </div>
                 </div>
               </ContentList>
