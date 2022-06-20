@@ -11,7 +11,7 @@ const route = useRoute()
 
 /**
  *
- * get category list
+ * category filter
  *
  */
 const { data: navData } = await useAsyncData('navigation', () => fetchContentNavigation())
@@ -20,24 +20,35 @@ let articleFolder
 
 if (Array.isArray(navData.value) && navData.value.findIndex(item => item.title.toLowerCase() === 'article') !== -1) {
   articleFolder = navData.value.find(elem => elem.title.toLowerCase() === 'article')
-
-  // console.log(articleFolder.children)
 }
 
+const currentCategory = ref(route.query.category as string || 'all')
 const showMoreCategory = ref(false)
+
+const setCategory = (value) => {
+  currentTags.value = []
+  currentSeries.value = 'all'
+  currentCategory.value = value
+}
 
 /**
  *
- * get tag and series list
+ * tag and series filter
  *
  */
+const showMoreFilter = ref(false)
+
 let tagSet, seriesSet
 
 const tagArr = []
 const seriesArr = []
 
-const categoryTags = {}
-const categorySeries = {}
+interface ArrayObject {
+  [key: string]: string[]
+}
+
+const categoryTags: ArrayObject = {}
+const categorySeries: ArrayObject = {}
 
 if (articleFolder && articleFolder.children.length > 0) {
   for (const category of articleFolder.children as NavItem[]) {
@@ -64,36 +75,97 @@ if (articleFolder && articleFolder.children.length > 0) {
   seriesSet = new Set(seriesArr)
 }
 
+const currentTags = ref([])
+
+if (typeof route.query.tags === 'string') {
+  currentTags.value = [route.query.tags]
+} else if (Array.isArray(route.query.tags)) {
+  currentTags.value = route.query.tags
+}
+
+const toggleTag = (tag) => {
+  if (tag === 'all') {
+    currentTags.value = []
+    return
+  }
+
+  if (currentTags.value.length > 0) {
+    const index = currentTags.value.findIndex(element => element === tag)
+    if (index !== -1) {
+      currentTags.value.splice(index, 1)
+    } else {
+      currentTags.value.push(tag)
+    }
+  } else {
+    currentTags.value.push(tag)
+  }
+}
+
+const currentSeries = ref(route.query.series as string || 'all')
+
 const showMoreTag = ref(false)
 const showMoreSeries = ref(false)
 
-const showMoreFilter = ref(false)
+watch([currentCategory, currentTags, currentSeries], () => {
+  navigateTo({
+    path: '/list',
+    query: {
+      category: currentCategory.value,
+      tags: currentTags.value,
+      series: currentSeries.value
+    }
+  })
+}, {
+  deep: true
+})
 
 /**
  *
  * query article list
  *
  */
-let contentQuery
 
-if (route.query.category) {
-  contentQuery = queryContent('article', route.query.category as string)
-} else {
-  contentQuery = queryContent('article')
+function getArticleList () {
+  let contentQuery
+
+  if (route.query.category && route.query.category !== 'all') {
+    contentQuery = queryContent('article', route.query.category as string)
+  } else {
+    contentQuery = queryContent('article')
+  }
+
+  if (route.query.tags) {
+    let tags = []
+    if (typeof route.query.tags === 'string') {
+      tags = [route.query.tags]
+    } else if (Array.isArray(route.query.tags)) {
+      tags = route.query.tags
+    }
+    contentQuery.where({ tags: { $contains: tags } })
+  }
+
+  if (route.query.series && route.query.series !== 'all') {
+    contentQuery.where({ series: route.query.series })
+  }
+
+  contentQuery.only(['title', 'description', '_path', 'contentType', 'cover', 'series', 'seriesOrder', 'tags'])
+
+  return contentQuery.find()
 }
 
-if (route.query.tags) {
-  contentQuery.where({ tags: { $in: route.query.tags } })
-}
+const { pending, data: result, refresh } = await useAsyncData('articles', () => getArticleList())
 
-if (route.query.series) {
-  contentQuery.where({ series: route.query.series })
-}
+watch(() => route.fullPath, () => {
+  if (route.path !== '/list') { return }
+  refresh()
+}, {
+  immediate: true
+})
 
-contentQuery.only(['title', 'description', '_path', 'contentType', 'cover', 'series', 'seriesOrder', 'tags'])
-
-const { data: result } = await useAsyncData('articles', () => contentQuery.find())
-
+/**
+ *
+ * show article list detail
+ */
 const showDetail = ref(false)
 
 </script>
@@ -131,15 +203,16 @@ const showDetail = ref(false)
                 v-for="category in [{ title: 'all', _path: 'all' }, ...articleFolder.children as NavItem[]]"
                 :key="category._path"
               >
-                <NuxtLink
-                  :to="{ path: '/list', query: { category: category.title.toLowerCase() } }"
-                  class="px-2 py-1 flex items-center space-x-1 text-blue-400 hover:text-blue-500 bg-blue-100 transition-colors duration-300 rounded"
+                <button
+                  class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded"
+                  :class="currentCategory === category.title.toLowerCase() ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-500/80 hover:text-blue-500 bg-blue-100'"
+                  @click="setCategory(category.title.toLowerCase())"
                 >
                   <IconCustom name="material-symbols:category-rounded" class="w-5 h-5" />
                   <p>
-                    {{ category.title.toLocaleLowerCase() }}
+                    {{ category.title.toLowerCase() }}
                   </p>
-                </NuxtLink>
+                </button>
               </li>
             </ul>
           </div>
@@ -172,12 +245,14 @@ const showDetail = ref(false)
                   :class="showMoreTag ? 'max-h-96' : 'max-h-8'"
                 >
                   <li v-for="tag in ['all', ...tagSet as string[]]" :key="tag">
-                    <NuxtLink
-                      :to="{ path: '/list', query: { tag: tag } }"
-                      class="px-2 py-1 flex items-center space-x-1 text-blue-400 hover:text-blue-500 bg-blue-100 transition-colors duration-300 rounded"
+                    <button
+                      class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded disabled:opacity-30"
+                      :class="(currentTags.length === 0 && tag === 'all') || currentTags.includes(tag) ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-500/80 hover:text-blue-500 bg-blue-100'"
+                      :disabled="(tag === 'all' || currentCategory === 'all' || categoryTags[currentCategory].includes(tag)) ? false : true"
+                      @click="toggleTag(tag)"
                     >
                       <p>#{{ tag }}</p>
-                    </NuxtLink>
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -200,13 +275,15 @@ const showDetail = ref(false)
                   :class="showMoreSeries ? 'max-h-96' : 'max-h-8'"
                 >
                   <li v-for="series in ['all', ...seriesSet as string[]]" :key="series">
-                    <NuxtLink
-                      :to="{ path: '/list', query: { series: series } }"
-                      class="px-2 py-1 flex items-center space-x-1 text-blue-400 hover:text-blue-500 bg-blue-100 transition-colors duration-300 rounded"
+                    <button
+                      class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded disabled:opacity-30"
+                      :class="currentSeries === series ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-500/80 hover:text-blue-500 bg-blue-100'"
+                      :disabled="(series === 'all' || currentCategory === 'all' || categorySeries[currentCategory].includes(series)) ? false : true"
+                      @click="currentSeries = series"
                     >
                       <IconCustom name="bi:collection" class="w-5 h-5" />
                       <p>{{ series }}</p>
-                    </NuxtLink>
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -218,6 +295,9 @@ const showDetail = ref(false)
       <button @click="showDetail = !showDetail">
         show Detail
       </button>
+      <div v-if="pending">
+        loading
+      </div>
       <div v-if="result" class="container p-8 mx-auto space-y-4">
         <ul class="grid sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
           <li v-for="item in result as ParsedContent" :key="item._path" class="flex justify-between items-end">
@@ -249,6 +329,10 @@ const showDetail = ref(false)
             </div>
           </li>
         </ul>
+        <!-- <pre>{{ currentCategory }}</pre>
+        <pre>{{ currentTags }}</pre>
+        <pre>{{ currentSeries }}</pre>
+        <pre>{{ result }}</pre> -->
       </div>
     </NuxtLayout>
   </div>

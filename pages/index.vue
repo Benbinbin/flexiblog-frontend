@@ -56,7 +56,7 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                 {{ category.title }}
               </h2>
               <NuxtLink
-                :to="{path: '/list', query: {category: category.title}}"
+                :to="{path: '/list', query: {category: category.title.toLowerCase()}}"
                 class="p-2 text-xs text-blue-500 font-bold bg-blue-100 hover:bg-blue-50 transition-colors duration-300 rounded-lg"
               >
                 More
@@ -74,7 +74,7 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                   <div
                     v-if="article.cover"
                     :style="`background-image: url('/covers/${article.cover}'); `"
-                    class="w-1/5 h-full absolute top-2 right-0 -z-10 bg-contain bg-right-top bg-no-repeat"
+                    class="w-1/5 h-full absolute top-0 right-0 -z-10 bg-contain bg-right-top bg-no-repeat"
                   >
                     <div
                       class="absolute inset-0"
@@ -86,7 +86,7 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                     <h3 class="font-bold text-2xl text-gray-600 group-hover:text-blue-400">
                       {{ article.title || "This Post Hasn't Title Yet" }}
                     </h3>
-                    <p v-if="article.description" class="text-gray-400">
+                    <p v-if="article.description" class="text-gray-600">
                       {{ article.description }}
                     </p>
                   </NuxtLink>
@@ -112,12 +112,12 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                 <div
                   v-for="article in list"
                   :key="article._path"
-                  class="shrink-0 flex flex-col sm:hidden w-5/6 relative z-10 border rounded-lg overflow-hidden "
+                  class="shrink-0 flex flex-col sm:hidden w-5/6 relative z-10 border rounded-lg overflow-hidden"
                 >
                   <div
                     v-if="article.cover"
                     :style="`background-image: url('/covers/${article.cover}'); `"
-                    class="w-2/3 h-2/3 absolute bottom-2 right-2 -z-10 bg-contain bg-right-bottom bg-no-repeat"
+                    class="w-2/3 h-2/3 absolute bottom-0 right-0 -z-10 bg-contain bg-right-bottom bg-no-repeat"
                   >
                     <div
                       class="absolute inset-0"
@@ -132,7 +132,7 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                     <h3 class="font-bold">
                       {{ article.title || "This Post Hasn't Title Yet" }}
                     </h3>
-                    <p v-if="article.description" class="text-gray-400 text-sm">
+                    <p v-if="article.description" class="text-gray-600 text-sm">
                       {{ article.description }}
                     </p>
                   </NuxtLink>
