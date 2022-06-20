@@ -173,10 +173,10 @@ const showDetail = ref(false)
 <template>
   <div>
     <NuxtLayout name="base">
-      <div class="p-8 flex items-start space-x-2">
+      <div class="shrink-0 p-4 sm:p-8 flex items-start space-x-2">
         <button
           class="shrink-0 p-2.5 flex justify-center items-center transition-colors duration-300 rounded"
-          :class="showMoreFilter ? 'bg-blue-400 hover:bg-blue-300 text-white' : 'bg-blue-100 text-blue-400 hover:text-blue-500'"
+          :class="showMoreFilter ? 'bg-blue-500 hover:bg-blue-400 text-white' : 'bg-blue-100 text-blue-400 hover:text-blue-500'"
           @click="showMoreFilter = !showMoreFilter"
         >
           <IconCustom name="mdi:filter-plus-outline" class="w-6 h-6" />
@@ -192,7 +192,9 @@ const showDetail = ref(false)
                 class="w-5 h-5 transition-transform duration-300"
                 :class="showMoreCategory ? 'rotate-90' : 'rotate-0'"
               />
-              <p>Category</p>
+              <p class="hidden sm:block">
+                Category
+              </p>
             </button>
             <ul
               v-if="articleFolder"
@@ -205,7 +207,7 @@ const showDetail = ref(false)
               >
                 <button
                   class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded"
-                  :class="currentCategory === category.title.toLowerCase() ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-500/80 hover:text-blue-500 bg-blue-100'"
+                  :class="currentCategory === category.title.toLowerCase() ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-400 hover:text-blue-500 bg-blue-100'"
                   @click="setCategory(category.title.toLowerCase())"
                 >
                   <IconCustom name="material-symbols:category-rounded" class="w-5 h-5" />
@@ -236,7 +238,9 @@ const showDetail = ref(false)
                     class="w-5 h-5 transition-transform duration-300"
                     :class="showMoreTag ? 'rotate-90' : 'rotate-0'"
                   />
-                  <p>Tags</p>
+                  <p class="hidden sm:block">
+                    Tags
+                  </p>
                 </button>
 
                 <ul
@@ -247,7 +251,7 @@ const showDetail = ref(false)
                   <li v-for="tag in ['all', ...tagSet as string[]]" :key="tag">
                     <button
                       class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded disabled:opacity-30"
-                      :class="(currentTags.length === 0 && tag === 'all') || currentTags.includes(tag) ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-500/80 hover:text-blue-500 bg-blue-100'"
+                      :class="(currentTags.length === 0 && tag === 'all') || currentTags.includes(tag) ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-400 hover:text-blue-500 bg-blue-100'"
                       :disabled="(tag === 'all' || currentCategory === 'all' || categoryTags[currentCategory].includes(tag)) ? false : true"
                       @click="toggleTag(tag)"
                     >
@@ -266,7 +270,9 @@ const showDetail = ref(false)
                     class="w-5 h-5 transition-transform duration-300"
                     :class="showMoreSeries ? 'rotate-90' : 'rotate-0'"
                   />
-                  <p>Series</p>
+                  <p class="hidden sm:block">
+                    Series
+                  </p>
                 </button>
 
                 <ul
@@ -277,7 +283,7 @@ const showDetail = ref(false)
                   <li v-for="series in ['all', ...seriesSet as string[]]" :key="series">
                     <button
                       class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded disabled:opacity-30"
-                      :class="currentSeries === series ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-500/80 hover:text-blue-500 bg-blue-100'"
+                      :class="currentSeries === series ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-400 hover:text-blue-500 bg-blue-100'"
                       :disabled="(series === 'all' || currentCategory === 'all' || categorySeries[currentCategory].includes(series)) ? false : true"
                       @click="currentSeries = series"
                     >
@@ -291,19 +297,39 @@ const showDetail = ref(false)
           </Transition>
         </div>
       </div>
-      <hr>
-      <button @click="showDetail = !showDetail">
-        show Detail
-      </button>
-      <div v-if="pending">
-        loading
+      <hr class="mx-4 sm:mx-8">
+      <div class="shrink-0 mx-4 sm:mx-8 py-4 flex justify-between items-center text-sm">
+        <button
+          class="p-2 flex items-center space-x-1 text-red-400 hover:text-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-300 rounded"
+          @click="setCategory('all')"
+        >
+          <IconCustom name="ant-design:clear-outlined" class="w-5 h-5" />
+          <p>Clear Filter</p>
+        </button>
+        <button
+          class="p-2 flex items-center space-x-1 transition-colors duration-300 rounded"
+          :class="showDetail ? 'text-white bg-green-500 hover:bg-green-400' : 'text-green-400 hover:text-green-500 bg-green-50 hover:bg-green-100'"
+          @click="showDetail = !showDetail"
+        >
+          <IconCustom name="ic:round-unfold-more" class="w-5 h-5" />
+          <p>
+            Show Detail
+          </p>
+        </button>
       </div>
-      <div v-if="result" class="container p-8 mx-auto space-y-4">
-        <ul class="grid sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-          <li v-for="item in result as ParsedContent" :key="item._path" class="flex justify-between items-end">
+
+      <div v-if="pending" class="grow flex flex-col justify-center items-center space-y-2 text-gray-400">
+        <IconCustom name="eos-icons:loading" class="w-10 h-10" />
+        <p class="text-xl">
+          Loading
+        </p>
+      </div>
+      <div v-if="!pending && result" class="grow container p-4 sm:p-8 mx-auto space-y-4">
+        <ul :class="showDetail ? 'space-y-2' : 'grid sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-start gap-2'">
+          <li v-for="item in result as ParsedContent" :key="item._path" class="space-y-2">
             <NuxtLink
               :to="item._path"
-              class="grow px-4 py-2 text-gray-600 hover:text-blue-500 hover:bg-blue-100 transition-colors duration-300 rounded-lg space-y-2"
+              class="block px-4 py-2 text-gray-600 hover:text-blue-500 hover:bg-blue-100 transition-colors duration-300 rounded-lg space-y-2"
             >
               <div class="flex items-start">
                 <div class="shrink-0 p-1 flex justify-center items-center">
@@ -316,15 +342,29 @@ const showDetail = ref(false)
                   {{ item.title }}
                 </h2>
               </div>
-              <p v-if="showDetail && item.description" class="px-6 text-sm opacity-60 ">
+              <p v-show="showDetail && item.description" class="px-6 text-sm opacity-60">
                 {{ item.description }}
               </p>
             </NuxtLink>
-            <div class="p-2 flex items-end shrink-0">
+            <div v-if="item.tags" v-show="showDetail" class="px-10 flex flex-wrap gap-2">
               <button
-                class="px-2 py-1 flex justify-center items-center text-green-400 hover:text-green-500 bg-green-50  transition-colors duration-300 rounded"
+                v-for="tag in item.tags"
+                :key="tag"
+                class="px-2 py-1 text-xs transition-colors duration-300 rounded"
+                :class="(currentTags.length === 0 && tag === 'all') || currentTags.includes(tag) ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-400 hover:text-blue-500 bg-blue-100'"
+                @click="toggleTag(tag)"
               >
-                <IconCustom name="bi:collection" class="h-4" />
+                #{{ tag }}
+              </button>
+            </div>
+            <div v-if="item.series" v-show="showDetail" class="px-10">
+              <button
+                class="px-2 py-1 flex justify-center items-center space-x-1 text-xs transition-colors duration-300 rounded"
+                :class="currentSeries === item.series ? 'text-white bg-green-500 hover:bg-green-400' : 'text-green-400 hover:text-green-500 bg-green-100'"
+                @click="currentSeries = item.series"
+              >
+                <IconCustom name="bi:collection" class="w-4 h-4" />
+                <p>{{ item.series }}</p>
               </button>
             </div>
           </li>

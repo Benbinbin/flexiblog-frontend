@@ -30,11 +30,11 @@ onMounted(() => {
 <template>
   <div class="bg-gray-50 flex flex-col min-h-screen">
     <Head>
-      <Style type="text/css" children="html, body { scroll-behavior: smooth;}" />
+      <Style type="text/css" children="html, body { scroll-behavior: smooth; overflow: overlay }" />
     </Head>
 
     <NavBar class="sm:sticky top-0 inset-x-0 z-50 bg-gray-50" />
-    <div class="flex-grow">
+    <div class="grow flex flex-col">
       <slot />
     </div>
     <hr class="p-4 w-1/5 mx-auto">
@@ -54,11 +54,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-
-// a {
-//   @apply text-purple-400 underline decoration-2 decoration-transparent hover:decoration-purple-400;
-// }
-
 ::-webkit-scrollbar {
   width: 12px;
   height: 12px;
