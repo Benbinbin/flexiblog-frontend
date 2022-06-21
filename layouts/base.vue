@@ -29,10 +29,6 @@ onMounted(() => {
 
 <template>
   <div class="bg-gray-50 flex flex-col min-h-screen">
-    <Head>
-      <Style type="text/css" children="html, body { scroll-behavior: smooth; overflow: overlay }" />
-    </Head>
-
     <NavBar class="sm:sticky top-0 inset-x-0 z-50 bg-gray-50" />
     <div class="grow flex flex-col">
       <slot />
@@ -48,7 +44,7 @@ onMounted(() => {
       leave-active-class="transition-all duration-75 ease"
       leave-to-class="transform translate-y-36 md:translate-y-10 opacity-0"
     >
-      <BackToTop v-show="isShowBackBtn" class="w-10 h-10 fixed z-20 bottom-20 sm:bottom-4 right-2" />
+      <BackToTop v-show="isShowBackBtn" class="w-10 h-10 fixed z-20 bottom-20 sm:bottom-4 right-2 sm:right-4" />
     </Transition>
   </div>
 </template>

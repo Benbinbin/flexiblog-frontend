@@ -16,8 +16,33 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
   only: ['title', 'description', '_path', 'cover', 'series', 'seriesOrder', 'tags']
 }
 
-// const flexiMode = useFlexiMode()
+const showSeriesModal = ref(false)
+const seriesModalName = ref('')
+const setSeriesModal = (series) => {
+  if (series) {
+    seriesModalName.value = series
+    showSeriesModal.value = true
+  } else {
+    seriesModalName.value = ''
+    showSeriesModal.value = false
+  }
+}
 
+watch(showSeriesModal, () => {
+  const body = document.body // console.log(body)
+
+  if (body && showSeriesModal.value) {
+    body.classList.add('modal-open')
+  }
+
+  ;
+
+  if (body && !showSeriesModal.value) {
+    body.classList.remove('modal-open')
+  }
+})
+
+// const flexiMode = useFlexiMode()
 </script>
 
 <template>
@@ -27,9 +52,9 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
         <div
           class="p-8 sm:p-16 w-full flex flex-col sm:flex-row justify-between items-center sm:item-start gap-16 rounded-xl bg-blue-100"
         >
-          <ContentDoc class="content-container space-y-8">
+          <ContentDoc class="index-page-content-container space-y-8">
             <template #not-found>
-              <div class="content-container space-y-8">
+              <div class="index-page-content-container space-y-8">
                 <h1>
                   Hi, welcome to my blog
                 </h1>
@@ -56,7 +81,7 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                 {{ category.title }}
               </h2>
               <NuxtLink
-                :to="{path: '/list', query: {category: category.title.toLowerCase()}}"
+                :to="{ path: '/list', query: { category: category.title.toLowerCase() } }"
                 class="p-2 text-xs text-blue-500 font-bold bg-blue-100 hover:bg-blue-50 transition-colors duration-300 rounded-lg"
               >
                 More
@@ -69,7 +94,7 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                 <div
                   v-for="article in list"
                   :key="article._path"
-                  class="pb-4 hidden sm:block relative z-10 rounded-xl "
+                  class="pb-4 hidden sm:block relative z-10 space-y-2 rounded-xl"
                 >
                   <div
                     v-if="article.cover"
@@ -91,28 +116,32 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                     </p>
                   </NuxtLink>
 
-                  <div class="flex justify-between items-start gap-4">
-                    <div v-if="article.tags" class="grow flex flex-wrap gap-2">
-                      <NuxtLink
-                        v-for="tag in article.tags"
-                        :key="tag"
-                        :to="{ path: '/list', query: { tags: [tag] } }"
-                        class="px-2 py-1 text-xs text-blue-400 hover:text-blue-500 bg-blue-50 transition-colors duration-300 rounded"
-                      >
-                        #{{ tag }}
-                      </NuxtLink>
-                    </div>
-                    <button
-                      class="shrink-0 px-2 py-1 flex justify-center items-center text-green-400 hover:text-green-500 bg-green-50 transition-colors duration-300 rounded"
+                  <div v-if="article.tags" class="grow flex flex-wrap gap-2">
+                    <NuxtLink
+                      v-for="tag in article.tags"
+                      :key="tag"
+                      :to="{ path: '/list', query: { tags: [tag] } }"
+                      class="px-2 py-1 text-xs text-blue-400 hover:text-blue-500 bg-blue-50 transition-colors duration-300 rounded"
                     >
-                      <IconCustom name="bi:collection" class="h-4" />
-                    </button>
+                      #{{ tag }}
+                    </NuxtLink>
                   </div>
+                  <button
+                    v-if="article.series"
+                    class="px-2 py-1 flex justify-center items-center space-x-1 text-green-400 hover:text-green-500 bg-green-50 transition-colors duration-300 rounded"
+                    @click="setSeriesModal(article.series)"
+                  >
+                    <IconCustom name="bi:collection" class="w-4 h-4" />
+                    <p class="text-xs">
+                      {{ article.series }}
+                    </p>
+                  </button>
                 </div>
                 <div
                   v-for="article in list"
                   :key="article._path"
-                  class="shrink-0 flex flex-col sm:hidden w-5/6 relative z-10 border rounded-lg overflow-hidden"
+                  class="shrink-0 flex flex-col sm:hidden relative z-10 border rounded-lg overflow-hidden"
+                  :class="list.length >= 2 ? 'w-5/6' : 'w-full'"
                 >
                   <div
                     v-if="article.cover"
@@ -148,7 +177,9 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
                       </NuxtLink>
                     </div>
                     <button
-                      class="shrink-0 px-2 py-1 flex justify-center items-center text-green-400 hover:text-green-500 bg-green-50  transition-colors duration-300 rounded"
+                      v-if="article.series"
+                      class="shrink-0 px-2 py-1 flex justify-center items-center text-green-400 hover:text-green-500 bg-green-50 transition-colors duration-300 rounded"
+                      @click="setSeriesModal(article.series)"
                     >
                       <IconCustom name="bi:collection" class="h-4" />
                     </button>
@@ -160,19 +191,24 @@ const queryCategoryArticlesParams: QueryBuilderParams = {
         </template>
       </div>
     </NuxtLayout>
+    <SeriesModal v-if="showSeriesModal && seriesModalName" :series="seriesModalName" @close="setSeriesModal('')" />
   </div>
 </template>
 
 <style lang="scss">
-.content-container h1 {
+.index-page-content-container h1 {
   @apply font-bold text-5xl text-blue-600
 }
 
-.content-container * {
+.index-page-content-container * {
   @apply text-blue-500 text-2xl
 }
 
 .scroll-container::-webkit-scrollbar {
   display: none;
+}
+
+.modal-open {
+  overflow: hidden;
 }
 </style>

@@ -4,7 +4,7 @@
 
 <template>
   <div class="py-4 flex justify-center items-center">
-    <div class="flex gap-4 text-xs text-gray-400">
+    <div class="flex flex-col md:flex-row gap-4 text-xs text-gray-400 text-center">
       <p>
         Copyright &copy {{ (new Date()).getFullYear() }}
 
@@ -16,6 +16,17 @@
           target="_blank"
           class="text-blue-400"
         >FlexiBlog</a>
+      </p>
+      <p>
+        Icons from <a
+          href="https://github.com/Benbinbin/flexiblog-frontend"
+          target="_blank"
+          class="text-blue-400"
+        >Icônes</a>, <a
+          href="https://icons8.com/"
+          target="_blank"
+          class="text-blue-400"
+        >Icons8</a>
       </p>
     </div>
   </div>

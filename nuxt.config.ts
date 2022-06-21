@@ -38,6 +38,16 @@ export default defineNuxtConfig({
           rel: 'stylesheet',
           href: 'https://cdn.jsdelivr.net/npm/katex@0.15.0/dist/katex.min.css'
         }
+      ],
+      style: [
+        {
+          type: 'text/css',
+          children: 'html, body { scroll-behavior: smooth } '
+        },
+        {
+          type: 'text/css',
+          children: 'body { overflow: overlay }'
+        }
       ]
     }
   },

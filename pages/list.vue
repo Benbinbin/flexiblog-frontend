@@ -220,12 +220,12 @@ const showDetail = ref(false)
           </div>
 
           <Transition
-            enter-from-class=" transform -translate-y-8 opacity-0"
+            enter-from-class="-translate-y-8 opacity-0"
             enter-active-class="transition-all duration-300 ease-out"
-            enter-to-class="transform translate-y-0 opacity-100"
-            leave-from-class="transform translate-y-0 opacity-100"
+            enter-to-class="translate-y-0 opacity-100"
+            leave-from-class="translate-y-0 opacity-100"
             leave-active-class="transition-all duration-100 ease-in"
-            leave-to-class="transform -translate-y-8 opacity-0"
+            leave-to-class="-translate-y-8 opacity-0"
           >
             <div v-show="showMoreFilter" class="space-y-2">
               <div class="p-2 flex items-start text-sm bg-gray-100 rounded space-x-4">
@@ -311,9 +311,10 @@ const showDetail = ref(false)
           :class="showDetail ? 'text-white bg-green-500 hover:bg-green-400' : 'text-green-400 hover:text-green-500 bg-green-50 hover:bg-green-100'"
           @click="showDetail = !showDetail"
         >
-          <IconCustom name="ic:round-unfold-more" class="w-5 h-5" />
-          <p>
-            Show Detail
+          <IconCustom v-show="showDetail" name="ic:round-unfold-less" class="w-5 h-5" />
+          <IconCustom v-show="!showDetail" name="ic:round-unfold-more" class="w-5 h-5" />
+          <p class="hidden sm:block">
+            Show {{ showDetail ? 'Less' : 'More' }} Detail
           </p>
         </button>
       </div>
@@ -369,10 +370,6 @@ const showDetail = ref(false)
             </div>
           </li>
         </ul>
-        <!-- <pre>{{ currentCategory }}</pre>
-        <pre>{{ currentTags }}</pre>
-        <pre>{{ currentSeries }}</pre>
-        <pre>{{ result }}</pre> -->
       </div>
     </NuxtLayout>
   </div>
