@@ -36,7 +36,7 @@ const showDetail = ref(false)
         enter-to-class="scale-1"
       >
         <div v-if="!pending" class="modal-container">
-          <div v-if="seriesList && seriesList.length>0" class="bg-white rounded-t-lg">
+          <div v-if="seriesList && seriesList.length > 0" class="bg-white rounded-t-lg">
             <h2 class="p-4 text-xl font-bold text-center border-b ">
               {{ props.series }}
             </h2>
@@ -67,24 +67,16 @@ const showDetail = ref(false)
               title="close window"
               @click="$emit('close')"
             >
-              <IconCustom name="ic:round-close" class="w-4 h-4" />
-              <!-- <p>
-                Close Window
-              </p> -->
+              <IconCustom name="ic:round-close" class="w-5 h-5" />
             </button>
             <button
               class="p-4 flex justify-center items-center space-x-1 rounded-br-lg"
-              :class="showDetail ? 'text-white bg-green-500 hover:bg-green-400': 'text-green-400 bg-green-50 hover:text-green-500 hover:bg-green-100'"
+              :class="showDetail ? 'text-white bg-green-500 hover:bg-green-400' : 'text-green-400 bg-green-50 hover:text-green-500 hover:bg-green-100'"
               :title="showDetail ? 'Less Details' : 'More Details'"
               @click="showDetail = !showDetail"
             >
-              <div class="flex justify-center items-center w-4 h-4">
-                <IconCustom v-show="showDetail" name="ic:round-unfold-less" />
-                <IconCustom v-show="!showDetail" name="ic:round-unfold-more" />
-              </div>
-              <!-- <p>
-                {{ showDetail ? 'Less' : 'More' }} Details
-              </p> -->
+              <IconCustom v-show="showDetail" name="ic:round-unfold-less" class="w-5 h-5" />
+              <IconCustom v-show="!showDetail" name="ic:round-unfold-more" class="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -94,15 +86,15 @@ const showDetail = ref(false)
 </template>
 
 <style lang="scss" scoped>
-
 .modal-container {
   max-width: 80vw;
 }
 
 .modal-content-container {
   max-height: 70vh;
+
   &::-webkit-scrollbar {
-      display: none;
-    }
+    display: none;
+  }
 }
 </style>

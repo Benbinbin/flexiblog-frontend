@@ -50,7 +50,7 @@ watch(showSeriesModal, () => {
     <NuxtLayout name="base">
       <div class="container px-8 py-16 mx-auto ">
         <div
-          class="p-8 sm:p-16 w-full flex flex-col sm:flex-row justify-between items-center sm:item-start gap-16 rounded-xl bg-blue-100"
+          class="p-8 sm:p-16 w-full flex flex-col sm:flex-row justify-between items-center sm:item-start gap-16 rounded-xl bg-purple-100"
         >
           <ContentDoc class="index-page-content-container space-y-8">
             <template #not-found>
@@ -77,12 +77,12 @@ watch(showSeriesModal, () => {
         <template v-for="category in articleFolder.children as NavItem[]">
           <section v-if="category.children" :key="category._path" class="w-full sm:w-4/5 mx-auto space-y-4">
             <div class="flex justify-between items-start">
-              <h2 class="pl-1 font-bold text-lg text-gray-500 border-l-8 border-blue-400">
+              <h2 class="pl-1 font-bold text-lg text-purple-500 border-l-8 border-purple-500">
                 {{ category.title }}
               </h2>
               <NuxtLink
                 :to="{ path: '/list', query: { category: category.title.toLowerCase() } }"
-                class="p-2 text-xs text-blue-500 font-bold bg-blue-100 hover:bg-blue-50 transition-colors duration-300 rounded-lg"
+                class="p-2 text-xs text-purple-500 font-bold bg-purple-100 hover:bg-purple-50 transition-colors duration-300 rounded-lg"
               >
                 More
               </NuxtLink>
@@ -108,7 +108,7 @@ watch(showSeriesModal, () => {
                   </div>
 
                   <NuxtLink :to="article._path" class="group block py-4 transition-colors duration-300 space-y-2">
-                    <h3 class="font-bold text-2xl text-gray-600 group-hover:text-blue-400">
+                    <h3 class="font-bold text-2xl text-gray-600 group-hover:text-blue-400 transition-colors duration-500">
                       {{ article.title || "This Post Hasn't Title Yet" }}
                     </h3>
                     <p v-if="article.description" class="text-gray-600">
@@ -140,7 +140,7 @@ watch(showSeriesModal, () => {
                 <div
                   v-for="article in list"
                   :key="article._path"
-                  class="shrink-0 flex flex-col sm:hidden relative z-10 border rounded-lg overflow-hidden"
+                  class="shrink-0 flex flex-col sm:hidden relative z-10 border border-blue-100 rounded-lg overflow-hidden"
                   :class="list.length >= 2 ? 'w-5/6' : 'w-full'"
                 >
                   <div
@@ -197,11 +197,11 @@ watch(showSeriesModal, () => {
 
 <style lang="scss">
 .index-page-content-container h1 {
-  @apply font-bold text-5xl text-blue-600
+  @apply font-bold text-5xl text-purple-600
 }
 
 .index-page-content-container * {
-  @apply text-blue-500 text-2xl
+  @apply text-purple-400 text-2xl
 }
 
 .scroll-container::-webkit-scrollbar {

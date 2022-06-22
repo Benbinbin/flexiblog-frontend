@@ -173,132 +173,138 @@ const showListDetail = useShowListDetail()
 <template>
   <div>
     <NuxtLayout name="base">
-      <div class="shrink-0 p-4 sm:p-8 flex items-start space-x-2">
-        <button
-          class="shrink-0 p-2.5 flex justify-center items-center transition-colors duration-300 rounded"
-          :class="showMoreFilter ? 'bg-blue-500 hover:bg-blue-400 text-white' : 'bg-blue-100 text-blue-400 hover:text-blue-500'"
-          @click="showMoreFilter = !showMoreFilter"
-        >
-          <IconCustom name="mdi:filter-plus-outline" class="w-6 h-6" />
-        </button>
-        <div class="grow space-y-2">
-          <div class="p-2 flex items-start text-sm bg-gray-100 rounded space-x-4">
-            <button
-              class="shrink-0 px-2 py-1 flex items-center text-gray-500 hover:bg-gray-200 rounded"
-              @click="showMoreCategory = !showMoreCategory"
-            >
-              <IconCustom
-                name="ic:round-keyboard-arrow-right"
-                class="w-5 h-5 transition-transform duration-300"
-                :class="showMoreCategory ? 'rotate-90' : 'rotate-0'"
-              />
-              <p class="hidden sm:block">
+      <div class="shrink-0 px-4 sm:px-8 py-4 space-y-4 bg-gray-50">
+        <div class="flex items-start sm:space-x-2">
+          <button
+            class="shrink-0 p-2.5 hidden sm:flex justify-center items-center transition-colors duration-300 rounded"
+            :class="showMoreFilter ? 'bg-purple-500 hover:bg-purple-400 text-white' : 'bg-purple-100 text-purple-400 hover:text-purple-500'"
+            @click="showMoreFilter = !showMoreFilter"
+          >
+            <IconCustom name="mdi:filter-plus-outline" class="w-6 h-6" />
+          </button>
+          <div class="grow max-w-full space-y-2 ">
+            <div class="p-2 flex items-start text-sm bg-gray-100 sm:space-x-4">
+              <button
+                class="shrink-0 px-2 py-1 hidden sm:flex items-center text-gray-500 hover:bg-gray-200 rounded"
+                @click="showMoreCategory = !showMoreCategory"
+              >
+                <IconCustom
+                  name="ic:round-keyboard-arrow-right"
+                  class="w-5 h-5 transition-transform duration-300"
+                  :class="showMoreCategory ? 'rotate-90' : 'rotate-0'"
+                />
+                <p>
+                  Category
+                </p>
+              </button>
+              <p class="px-2 py-1 sm:hidden">
                 Category
               </p>
-            </button>
-            <ul
-              v-if="articleFolder"
-              class="grow flex flex-wrap gap-2 overflow-y-hidden transition-all duration-300"
-              :class="showMoreCategory ? 'max-h-96' : 'max-h-8'"
-            >
-              <li
-                v-for="category in [{ title: 'all', _path: 'all' }, ...articleFolder.children as NavItem[]]"
-                :key="category._path"
-              >
-                <button
-                  class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded"
-                  :class="currentCategory === category.title.toLowerCase() ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-400 hover:text-blue-500 bg-blue-100'"
-                  @click="setCategory(category.title.toLowerCase())"
+              <ul v-if="articleFolder" class="filter-list-container" :class="showMoreCategory ? 'max-h-96' : 'max-h-8'">
+                <li
+                  v-for="category in [{ title: 'all', _path: 'all' }, ...articleFolder.children as NavItem[]]"
+                  :key="category._path"
                 >
-                  <IconCustom name="material-symbols:category-rounded" class="w-5 h-5" />
-                  <p>
-                    {{ category.title.toLowerCase() }}
-                  </p>
-                </button>
-              </li>
-            </ul>
-          </div>
+                  <button
+                    class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded"
+                    :class="currentCategory === category.title.toLowerCase() ? 'text-white bg-purple-500 hover:bg-purple-400' : 'text-purple-400 hover:text-purple-500 bg-purple-100'"
+                    @click="setCategory(category.title.toLowerCase())"
+                  >
+                    <IconCustom name="material-symbols:category-rounded" class="w-5 h-5" />
+                    <p>
+                      {{ category.title.toLowerCase() }}
+                    </p>
+                  </button>
+                </li>
+              </ul>
+            </div>
 
-          <Transition
-            enter-from-class="-translate-y-8 opacity-0"
-            enter-active-class="transition-all duration-300 ease-out"
-            enter-to-class="translate-y-0 opacity-100"
-            leave-from-class="translate-y-0 opacity-100"
-            leave-active-class="transition-all duration-100 ease-in"
-            leave-to-class="-translate-y-8 opacity-0"
-          >
-            <div v-show="showMoreFilter" class="space-y-2">
-              <div class="p-2 flex items-start text-sm bg-gray-100 rounded space-x-4">
-                <button
-                  class="shrink-0 px-2 py-1 flex items-center text-gray-500 hover:bg-gray-200 rounded"
-                  @click="showMoreTag = !showMoreTag"
-                >
-                  <IconCustom
-                    name="ic:round-keyboard-arrow-right"
-                    class="w-5 h-5 transition-transform duration-300"
-                    :class="showMoreTag ? 'rotate-90' : 'rotate-0'"
-                  />
-                  <p class="hidden sm:block">
+            <Transition
+              enter-from-class="-translate-y-8 opacity-0"
+              enter-active-class="transition-all duration-300 ease-out"
+              enter-to-class="translate-y-0 opacity-100"
+              leave-from-class="translate-y-0 opacity-100"
+              leave-active-class="transition-all duration-100 ease-in"
+              leave-to-class="-translate-y-8 opacity-0"
+            >
+              <div v-show="showMoreFilter" class="space-y-2">
+                <div class="p-2 flex items-start text-sm bg-gray-100 rounded sm:space-x-4">
+                  <button
+                    class="shrink-0 px-2 py-1 hidden sm:flex items-center text-gray-500 hover:bg-gray-200 rounded"
+                    @click="showMoreTag = !showMoreTag"
+                  >
+                    <IconCustom
+                      name="ic:round-keyboard-arrow-right"
+                      class="w-5 h-5 transition-transform duration-300"
+                      :class="showMoreTag ? 'rotate-90' : 'rotate-0'"
+                    />
+                    <p>
+                      Tags
+                    </p>
+                  </button>
+                  <p class="px-2 py-1 sm:hidden">
                     Tags
                   </p>
-                </button>
-
-                <ul
-                  v-if="tagSet"
-                  class="grow flex flex-wrap gap-2 overflow-y-hidden transition-all duration-300"
-                  :class="showMoreTag ? 'max-h-96' : 'max-h-8'"
-                >
-                  <li v-for="tag in ['all', ...tagSet as string[]]" :key="tag">
-                    <button
-                      class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded disabled:opacity-30"
-                      :class="(currentTags.length === 0 && tag === 'all') || currentTags.includes(tag) ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-400 hover:text-blue-500 bg-blue-100'"
-                      :disabled="(tag === 'all' || currentCategory === 'all' || categoryTags[currentCategory].includes(tag)) ? false : true"
-                      @click="toggleTag(tag)"
-                    >
-                      <p>#{{ tag }}</p>
-                    </button>
-                  </li>
-                </ul>
-              </div>
-              <div class="p-2 flex items-start text-sm bg-gray-100 rounded space-x-4">
-                <button
-                  class="shrink-0 px-2 py-1 flex items-center text-gray-500 hover:bg-gray-200 rounded"
-                  @click="showMoreSeries = !showMoreSeries"
-                >
-                  <IconCustom
-                    name="ic:round-keyboard-arrow-right"
-                    class="w-5 h-5 transition-transform duration-300"
-                    :class="showMoreSeries ? 'rotate-90' : 'rotate-0'"
-                  />
-                  <p class="hidden sm:block">
+                  <ul v-if="tagSet" class="filter-list-container" :class="showMoreTag ? 'max-h-96' : 'max-h-8'">
+                    <li v-for="tag in ['all', ...tagSet as string[]]" :key="tag">
+                      <button
+                        class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded disabled:opacity-30"
+                        :class="(currentTags.length === 0 && tag === 'all') || currentTags.includes(tag) ? 'text-white bg-purple-500 hover:bg-purple-400' : 'text-purple-400 hover:text-purple-500 bg-purple-100'"
+                        :disabled="(tag === 'all' || currentCategory === 'all' || categoryTags[currentCategory].includes(tag)) ? false : true"
+                        @click="toggleTag(tag)"
+                      >
+                        <p>#{{ tag }}</p>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+                <div class="p-2 flex items-start text-sm bg-gray-100 rounded sm:space-x-4">
+                  <button
+                    class="shrink-0 px-2 py-1 hidden sm:flex items-center text-gray-500 hover:bg-gray-200 rounded"
+                    @click="showMoreSeries = !showMoreSeries"
+                  >
+                    <IconCustom
+                      name="ic:round-keyboard-arrow-right"
+                      class="w-5 h-5 transition-transform duration-300"
+                      :class="showMoreSeries ? 'rotate-90' : 'rotate-0'"
+                    />
+                    <p>
+                      Series
+                    </p>
+                  </button>
+                  <p class="px-2 py-1 sm:hidden">
                     Series
                   </p>
-                </button>
-
-                <ul
-                  v-if="seriesSet"
-                  class="grow flex flex-wrap gap-2 overflow-y-hidden transition-all duration-300"
-                  :class="showMoreSeries ? 'max-h-96' : 'max-h-8'"
-                >
-                  <li v-for="series in ['all', ...seriesSet as string[]]" :key="series">
-                    <button
-                      class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded disabled:opacity-30"
-                      :class="currentSeries === series ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-400 hover:text-blue-500 bg-blue-100'"
-                      :disabled="(series === 'all' || currentCategory === 'all' || categorySeries[currentCategory].includes(series)) ? false : true"
-                      @click="currentSeries = series"
-                    >
-                      <IconCustom name="bi:collection" class="w-5 h-5" />
-                      <p>{{ series }}</p>
-                    </button>
-                  </li>
-                </ul>
+                  <ul v-if="seriesSet" class="filter-list-container" :class="showMoreSeries ? 'max-h-96' : 'max-h-8'">
+                    <li v-for="series in ['all', ...seriesSet as string[]]" :key="series">
+                      <button
+                        class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded disabled:opacity-30"
+                        :class="currentSeries === series ? 'text-white bg-purple-500 hover:bg-purple-400' : 'text-purple-400 hover:text-purple-500 bg-purple-100'"
+                        :disabled="(series === 'all' || currentCategory === 'all' || categorySeries[currentCategory].includes(series)) ? false : true"
+                        @click="currentSeries = series"
+                      >
+                        <IconCustom name="bi:collection" class="w-5 h-5" />
+                        <p>{{ series }}</p>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
               </div>
-            </div>
-          </Transition>
+            </Transition>
+
+            <button
+              class="w-full p-2 sm:hidden text-purple-500 bg-purple-100 rounded"
+              @click="showMoreFilter = !showMoreFilter"
+            >
+              <IconCustom v-show="!showMoreFilter" name="ic:round-keyboard-arrow-down" class="w-4 h-4" />
+              <IconCustom v-show="showMoreFilter" name="ic:round-keyboard-arrow-up" class="w-4 h-4" />
+            </button>
+          </div>
         </div>
+        <hr>
       </div>
-      <hr class="mx-4 sm:mx-8">
-      <div class="shrink-0 mx-4 sm:mx-8 py-4 flex justify-between items-center text-sm">
+
+      <div class="shrink-0 mx-4 sm:mx-8 flex justify-between items-center text-sm">
         <button
           class="p-2 flex items-center text-red-400 hover:text-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-300 rounded"
           @click="setCategory('all')"
@@ -328,7 +334,9 @@ const showListDetail = useShowListDetail()
         </p>
       </div>
       <div v-if="!pending && result" class="grow container p-4 sm:p-8 mx-auto space-y-4">
-        <ul :class="showListDetail ? 'space-y-2' : 'grid sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-start gap-2'">
+        <ul
+          :class="showListDetail ? 'space-y-2' : 'grid sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-start gap-2'"
+        >
           <li v-for="item in result as ParsedContent" :key="item._path" class="space-y-2">
             <NuxtLink
               :to="item._path"
@@ -374,5 +382,13 @@ const showListDetail = useShowListDetail()
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+
+.filter-list-container {
+  @apply grow flex sm:flex-wrap gap-2 overflow-x-auto sm:overflow-x-visible sm:overflow-y-hidden transition-all duration-300
+}
+
+.filter-list-container::-webkit-scrollbar {
+  display: none;
+}
 </style>

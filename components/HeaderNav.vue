@@ -19,7 +19,7 @@ if (Array.isArray(navData.value) && navData.value.findIndex(item => item.title =
   articleFolder = navData.value.find(elem => elem.title.toLowerCase() === 'article')
 }
 
-const showSubNav = useShowSubNav()
+const showSubNav = ref(false)
 
 let timer = null
 
@@ -71,26 +71,16 @@ const changeFlexiMode = () => {
       class="px-4 py-3 flex justify-between items-center text-sm bg-gray-50 border-b"
       :class="showSubNav ? 'border-gray-200' : 'border-gray-50 shadow-md shadow-gray-200'"
     >
-      <!-- <div class="flex justify-between items-start max-w-2xl px-4 py-4 mx-auto sm:px-8">
-    <div class="text-gray-700 dark:text-gray-200">
-      <NavList :navigation="navArr as NavItem[]" />
-    </div>
-    <div class="space-x-3 text-gray-500 transition">
-      <a href="https://twitter.com/Atinux" title="Twitter" class="hover:text-gray-700 dark:hover:text-gray-300">
-        <IconCustom name="fa-brands:twitter" />
-      </a>
-      <a href="https://github.com/Atinux/content-wind" title="GitHub"
-        class="hover:text-gray-700 dark:hover:text-gray-300">
-        <IconCustom name="fa-brands:github" />
-      </a>
-      <ColorModeSwitch class="hover:text-gray-700 dark:hover:text-gray-300" />
-    </div>
-  </div> -->
       <NuxtLink :to="'/'" class="hover:">
         <img src="@/assets/avatar.png" alt="avatar" class="w-8 h-8 rounded-full">
       </NuxtLink>
-      <div class="hidden sm:flex items-center gap-6">
-        <button class="btn" @mouseover="setSubNav(true)" @mouseleave="setSubNav(false)" @click="showSubNav=!showSubNav">
+      <div class="flex items-center gap-6">
+        <button
+          class="btn hidden sm:block"
+          @mouseover="setSubNav(true)"
+          @mouseleave="setSubNav(false)"
+          @click="showSubNav=!showSubNav"
+        >
           Category
         </button>
         <NuxtLink to="/about" class="btn">
@@ -101,14 +91,14 @@ const changeFlexiMode = () => {
         </button>
         <button
           :title="`toggle flex mode to ${flexiMode === 'blog' ? 'note' : 'blog'}`"
-          class="w-10 h-10 flex justify-center items-center gap-1 bg-blue-100 hover:bg-blue-50 transition-colors duration-300 rounded-lg"
+          class="hidden w-10 h-10 sm:flex justify-center items-center gap-1 bg-purple-100 hover:bg-purple-200 transition-colors duration-300 rounded-lg"
           :class="flexiMode === 'blog' ? 'flex-col' : 'flex-row'"
           @click="changeFlexiMode"
         >
-          <div class="shrink-0 w-2 h-2 rounded-full bg-blue-500" />
+          <div class="shrink-0 w-2 h-2 rounded-full bg-purple-500" />
           <div class="shrink-0 space-y-1">
-            <div class="w-1.5 h-1.5 rounded-full bg-blue-400" />
-            <div class="w-1.5 h-1.5 rounded-full bg-blue-400" />
+            <div class="w-1.5 h-1.5 rounded-full bg-purple-400" />
+            <div class="w-1.5 h-1.5 rounded-full bg-purple-400" />
           </div>
         </button>
       </div>
@@ -158,7 +148,7 @@ const changeFlexiMode = () => {
 <style scoped lang="scss">
 
 .btn {
-  @apply p-2 font-bold text-blue-500 hover:bg-blue-50 transition-colors duration-300 rounded-md
+  @apply p-2 font-bold text-purple-500 hover:bg-purple-100 transition-colors duration-300 rounded-md
 }
 
 .sub-nav-scroll-container::-webkit-scrollbar {
@@ -173,6 +163,6 @@ const changeFlexiMode = () => {
 }
 
 .sub-nav-item-card {
-  @apply px-8 py-4 flex flex-col justify-center items-center space-y-2 text-blue-400 hover:text-blue-500 border-2 border-blue-100 hover:bg-blue-100 transition-colors duration-300 rounded-lg
+  @apply p-4 flex flex-col justify-center items-center space-y-2 text-purple-500 bg-purple-50 hover:bg-purple-100 border border-purple-100 transition-colors duration-300 rounded-lg
 }
 </style>

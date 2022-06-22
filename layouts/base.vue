@@ -48,6 +48,10 @@ onMounted(() => {
     >
       <BackToTop v-show="isShowBackBtn" class="w-10 h-10 fixed z-20 bottom-20 sm:bottom-4 right-2 sm:right-4" />
     </Transition>
+
+    <nav class="sm:hidden sticky bottom-0 left-0 right-0 z-50">
+      <FooterNav />
+    </nav>
   </div>
 </template>
 
