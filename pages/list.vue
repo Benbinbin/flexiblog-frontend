@@ -166,7 +166,7 @@ watch(() => route.fullPath, () => {
  *
  * show article list detail
  */
-const showDetail = ref(false)
+const showListDetail = useShowListDetail()
 
 </script>
 
@@ -300,21 +300,23 @@ const showDetail = ref(false)
       <hr class="mx-4 sm:mx-8">
       <div class="shrink-0 mx-4 sm:mx-8 py-4 flex justify-between items-center text-sm">
         <button
-          class="p-2 flex items-center space-x-1 text-red-400 hover:text-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-300 rounded"
+          class="p-2 flex items-center text-red-400 hover:text-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-300 rounded"
           @click="setCategory('all')"
         >
           <IconCustom name="ant-design:clear-outlined" class="w-5 h-5" />
-          <p>Clear Filter</p>
+          <p class="hidden sm:block">
+            Clear Filter
+          </p>
         </button>
         <button
-          class="p-2 flex items-center space-x-1 transition-colors duration-300 rounded"
-          :class="showDetail ? 'text-white bg-green-500 hover:bg-green-400' : 'text-green-400 hover:text-green-500 bg-green-50 hover:bg-green-100'"
-          @click="showDetail = !showDetail"
+          class="p-2 flex items-center transition-colors duration-300 rounded"
+          :class="showListDetail ? 'text-white bg-green-500 hover:bg-green-400' : 'text-green-400 hover:text-green-500 bg-green-50 hover:bg-green-100'"
+          @click="showListDetail = !showListDetail"
         >
-          <IconCustom v-show="showDetail" name="ic:round-unfold-less" class="w-5 h-5" />
-          <IconCustom v-show="!showDetail" name="ic:round-unfold-more" class="w-5 h-5" />
+          <IconCustom v-show="showListDetail" name="ic:round-unfold-less" class="w-5 h-5" />
+          <IconCustom v-show="!showListDetail" name="ic:round-unfold-more" class="w-5 h-5" />
           <p class="hidden sm:block">
-            Show {{ showDetail ? 'Less' : 'More' }} Detail
+            {{ showListDetail ? 'Less' : 'More' }} Detail
           </p>
         </button>
       </div>
@@ -326,41 +328,38 @@ const showDetail = ref(false)
         </p>
       </div>
       <div v-if="!pending && result" class="grow container p-4 sm:p-8 mx-auto space-y-4">
-        <ul :class="showDetail ? 'space-y-2' : 'grid sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-start gap-2'">
+        <ul :class="showListDetail ? 'space-y-2' : 'grid sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-start gap-2'">
           <li v-for="item in result as ParsedContent" :key="item._path" class="space-y-2">
             <NuxtLink
               :to="item._path"
               class="block px-4 py-2 text-gray-600 hover:text-blue-500 hover:bg-blue-100 transition-colors duration-300 rounded-lg space-y-2"
             >
               <div class="flex items-start">
-                <div class="shrink-0 p-1 flex justify-center items-center">
-                  <IconCustom
-                    :name="(!item.contentType || item.contentType === 'blog') ? 'ant-design:file-markdown-filled' : 'bi:filetype-json'"
-                    class="w-4 h-4"
-                  />
-                </div>
-                <h2 class="grow font-bold">
+                <IconCustom
+                  :name="(!item.contentType || item.contentType === 'blog') ? 'ant-design:file-markdown-filled' : 'bi:filetype-json'"
+                  class="shrink-0 p-1 w-7 h-7"
+                />
+                <h2 class="grow font-bold text-lg">
                   {{ item.title }}
                 </h2>
               </div>
-              <p v-show="showDetail && item.description" class="px-6 text-sm opacity-60">
+              <p v-show="showListDetail && item.description" class="px-6 text-sm opacity-60">
                 {{ item.description }}
               </p>
             </NuxtLink>
-            <div v-if="item.tags" v-show="showDetail" class="px-10 flex flex-wrap gap-2">
+            <div v-if="item.tags || item.series" v-show="showListDetail" class="px-10 flex flex-wrap gap-2 text-xs">
               <button
                 v-for="tag in item.tags"
                 :key="tag"
-                class="px-2 py-1 text-xs transition-colors duration-300 rounded"
+                class="px-2 py-1  transition-colors duration-300 rounded"
                 :class="(currentTags.length === 0 && tag === 'all') || currentTags.includes(tag) ? 'text-white bg-blue-500 hover:bg-blue-400' : 'text-blue-400 hover:text-blue-500 bg-blue-100'"
                 @click="toggleTag(tag)"
               >
                 #{{ tag }}
               </button>
-            </div>
-            <div v-if="item.series" v-show="showDetail" class="px-10">
               <button
-                class="px-2 py-1 flex justify-center items-center space-x-1 text-xs transition-colors duration-300 rounded"
+                v-if="item.series"
+                class="px-2 py-1 flex justify-center items-center space-x-1 transition-colors duration-300 rounded"
                 :class="currentSeries === item.series ? 'text-white bg-green-500 hover:bg-green-400' : 'text-green-400 hover:text-green-500 bg-green-100'"
                 @click="currentSeries = item.series"
               >

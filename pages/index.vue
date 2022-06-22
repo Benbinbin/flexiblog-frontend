@@ -99,7 +99,7 @@ watch(showSeriesModal, () => {
                   <div
                     v-if="article.cover"
                     :style="`background-image: url('/covers/${article.cover}'); `"
-                    class="w-1/5 h-full absolute top-0 right-0 -z-10 bg-contain bg-right-top bg-no-repeat"
+                    class="w-1/5 h-[90%] absolute bottom-0 right-0 -z-10 bg-contain bg-right-top bg-no-repeat"
                   >
                     <div
                       class="absolute inset-0"
@@ -181,7 +181,7 @@ watch(showSeriesModal, () => {
                       class="shrink-0 px-2 py-1 flex justify-center items-center text-green-400 hover:text-green-500 bg-green-50 transition-colors duration-300 rounded"
                       @click="setSeriesModal(article.series)"
                     >
-                      <IconCustom name="bi:collection" class="h-4" />
+                      <IconCustom name="bi:collection" class="w-4 h-4" />
                     </button>
                   </div>
                 </div>

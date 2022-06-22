@@ -29,7 +29,9 @@ onMounted(() => {
 
 <template>
   <div class="bg-gray-50 flex flex-col min-h-screen">
-    <NavBar class="sm:sticky top-0 inset-x-0 z-50 bg-gray-50" />
+    <header class="shrink-0 sm:sticky top-0 inset-x-0 z-30">
+      <HeaderNav />
+    </header>
     <div class="grow flex flex-col">
       <slot />
     </div>

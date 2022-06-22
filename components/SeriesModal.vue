@@ -44,7 +44,7 @@ const showDetail = ref(false)
               <li v-for="article in seriesList" :key="article._path">
                 <NuxtLink
                   :to="article._path"
-                  class="block px-4 py-2 text-gray-600 hover:text-blue-500 hover:bg-blue-100 transition-colors duration-300 rounded space-y-2"
+                  class="block px-4 py-2 text-gray-600 hover:text-blue-500 hover:bg-blue-100 transition-colors duration-300 space-y-2 rounded-md"
                   @click="$emit('close')"
                 >
                   <h3 class="font-bold">
@@ -64,27 +64,27 @@ const showDetail = ref(false)
           <div class="grid grid-cols-2 sticky bottom-0 inset-x-0 text-xs">
             <button
               class="p-4 flex justify-center items-center space-x-1 text-red-400 bg-red-50 hover:text-red-500 hover:bg-red-100 rounded-bl-lg"
+              title="close window"
               @click="$emit('close')"
             >
-              <div class="flex justify-center items-center w-4 h-4">
-                <IconCustom name="ic:round-close" />
-              </div>
-              <p>
-                Close
-              </p>
+              <IconCustom name="ic:round-close" class="w-4 h-4" />
+              <!-- <p>
+                Close Window
+              </p> -->
             </button>
             <button
               class="p-4 flex justify-center items-center space-x-1 rounded-br-lg"
               :class="showDetail ? 'text-white bg-green-500 hover:bg-green-400': 'text-green-400 bg-green-50 hover:text-green-500 hover:bg-green-100'"
+              :title="showDetail ? 'Less Details' : 'More Details'"
               @click="showDetail = !showDetail"
             >
               <div class="flex justify-center items-center w-4 h-4">
                 <IconCustom v-show="showDetail" name="ic:round-unfold-less" />
                 <IconCustom v-show="!showDetail" name="ic:round-unfold-more" />
               </div>
-              <p>
-                Show {{ showDetail ? 'Less' : 'More' }}
-              </p>
+              <!-- <p>
+                {{ showDetail ? 'Less' : 'More' }} Details
+              </p> -->
             </button>
           </div>
         </div>
