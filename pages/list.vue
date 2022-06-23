@@ -7,8 +7,6 @@ interface MyCustomParsedContent extends ParsedContent {
 
 const route = useRoute()
 
-// console.log(route)
-
 /**
  *
  * category filter
@@ -141,11 +139,14 @@ function getArticleList () {
     } else if (Array.isArray(route.query.tags)) {
       tags = route.query.tags
     }
-    contentQuery.where({ tags: { $contains: tags } })
+
+    if (tags.length > 0) {
+      contentQuery.where({ tags: { $in: tags } })
+    }
   }
 
   if (route.query.series && route.query.series !== 'all') {
-    contentQuery.where({ series: route.query.series })
+    contentQuery.where({ series: { $eq: route.query.series } })
   }
 
   contentQuery.only(['title', 'description', '_path', 'contentType', 'cover', 'series', 'seriesOrder', 'tags'])

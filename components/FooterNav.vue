@@ -82,18 +82,20 @@ const changeFlexiMode = () => {
               All
             </p>
           </NuxtLink>
-          <NuxtLink
-            v-for="item in (articleFolder.children as NavItem[])"
-            :key="item._path"
-            :to="{ path: '/list', query: { category: item.title.toLowerCase() } }"
-            class="sub-nav-item-card"
-            @click="showSubNav = false"
-          >
-            <IconCustom name="ic:round-category" class="w-4/5" />
-            <p class="text-xs font-bold text-center">
-              {{ item.title }}
-            </p>
-          </NuxtLink>
+          <template v-for="item in articleFolder.children as NavItem[]">
+            <NuxtLink
+              v-if="item.children"
+              :key="item._path"
+              :to="{ path: '/list', query: { category: item.title.toLowerCase() } }"
+              class="sub-nav-item-card"
+              @click="showSubNav = false"
+            >
+              <IconCustom name="ic:round-category" class="w-4/5" />
+              <p class="text-xs font-bold text-center">
+                {{ item.title }}
+              </p>
+            </NuxtLink>
+          </template>
         </div>
       </div>
     </Transition>
