@@ -1,17 +1,21 @@
 ---
-navTitle: 'About'
-# Custom og:image
 head.description: 'This is a custom description for Content Wind about page.'
-head.image: 'https://i.picsum.photos/id/866/536/354.jpg?hmac=tGofDTV7tl2rprappPzKFiZ9vDh5MKj39oa2D--gqhA'
 ---
 
 # About
 
-This is the about page, with a custom description and image for SEO :sparkles:
+This website records my daily learning notes and some project creating progress.
 
-![Content Wind](https://i.picsum.photos/id/866/536/354.jpg?hmac=tGofDTV7tl2rprappPzKFiZ9vDh5MKj39oa2D--gqhA)
+If you want to contact with me, please feel free to send an email for me to <a href="mailto:benthomsonbin@gmail.com" class="text-blue-400">benthomsonbin@gmail.com</a>
 
-```js
-console.log('hello world!')
+## Contact Me
 
-```
+::GridLayout
+:socialCard{name="wechat" imagePath="wechat.png" }
+
+:socialCard{name="@Benbinbin" iconName="logos:twitter" url="https://twitter.com/Benbinbin_fun"}
+
+:socialCard{name="Benbinbin" iconName="mdi:github" url="https://github.com/Benbinbin"}
+
+:socialCard{name="Benbinbin" imagePath="juejin.svg" url="https://juejin.cn/user/3175045314389278/columns"}
+::
