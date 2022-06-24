@@ -7,7 +7,7 @@
 <template>
   <div>
     <NuxtLayout name="base">
-      <ContentDoc class="article-container container mx-auto px-6 md:px-12 py-12">
+      <ContentDoc class=" article-container container mx-auto lg:max-w-4xl px-6 md:px-12 py-12">
         <template #not-found>
           <p>There is no such articles found.</p>
         </template>
@@ -19,6 +19,10 @@
 <style lang="scss">
 
 .article-container {
+  * {
+    @apply selection:bg-purple-400 selection:text-white
+  }
+
   p a {
     @apply text-blue-500 underline decoration-4 decoration-blue-400 hover:decoration-blue-500 visited:decoration-blue-100 hover:visited:decoration-blue-200 transition-colors duration-300;
   }
@@ -33,7 +37,15 @@
   h4,
   h5,
   h6 {
-    @apply font-bold before:font-light before:mr-1 before:text-purple-300 sm:before:opacity-0 hover:sm:before:opacity-100 before:transition-opacity before:duration-300;
+    @apply font-bold
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply before:font-light before:mr-1 before:text-purple-300 sm:before:opacity-50 hover:sm:before:opacity-100 before:transition-opacity before:duration-300;
   }
 
   h1 {
@@ -41,34 +53,36 @@
   }
 
   h2 {
-    @apply py-4 text-2xl md:text-3xl before:content-['H2'] before:text-sm md:before:text-lg;
+    @apply py-4 text-2xl md:text-3xl before:content-['H2'] before:text-sm md:before:text-lg sm:-translate-x-6;
   }
 
   h3 {
-    @apply py-4 text-xl md:text-2xl before:content-['H3'] before:text-sm md:before:text-base
+    @apply py-4 text-xl md:text-2xl before:content-['H3'] before:text-sm md:before:text-base sm:-translate-x-5;
   }
 
   h4 {
-    @apply py-2 text-lg md:text-xl before:content-['H4'] before:text-xs md:before:text-sm
+    @apply py-2 text-lg md:text-xl before:content-['H4'] before:text-xs md:before:text-sm sm:-translate-x-4;
   }
 
   h5 {
-    @apply py-2 text-lg md:text-xl before:content-['H5'] before:text-xs md:before:text-sm
+    @apply py-2 text-lg md:text-xl before:content-['H5'] before:text-xs md:before:text-sm sm:-translate-x-4;
   }
 
   h6 {
-    @apply py-2 text-lg md:text-xl before:content-['H6'] before:text-xs md:before:text-sm
+    @apply py-2 text-lg md:text-xl before:content-['H6'] before:text-xs md:before:text-sm sm:-translate-x-4;
   }
 
+  div,
   p,
   blockquote,
-  ul,
-  ol,
+  img,
   dl,
-  li,
-  table,
   pre {
     @apply my-4
+  }
+
+  table {
+    @apply my-0.5
   }
 
   hr {
@@ -77,44 +91,29 @@
 
   ul,
   ol {
-    @apply pl-2
+    @apply pl-4 my-2;
+
+    li {
+      @apply my-1
+    }
+  }
+
+  ul {
+   @apply list-disc;
+  }
+
+  ol {
+    @apply list-decimal;
   }
 
   dl {
-    padding: 0;
-  }
+    dt {
+      @apply font-bold italic my-2
+    }
 
-  dl dt {
-    font-size: 14px;
-    font-weight: bold;
-    font-style: italic;
-    padding: 0;
-    margin: 15px 0 5px;
-  }
-
-  dl dt:first-child {
-    padding: 0;
-  }
-
-  dl dt> :first-child {
-    margin-top: 0;
-  }
-
-  dl dt> :last-child {
-    margin-bottom: 0;
-  }
-
-  dl dd {
-    margin: 0 0 15px;
-    padding: 0 15px;
-  }
-
-  dl dd> :first-child {
-    margin-top: 0;
-  }
-
-  dl dd> :last-child {
-    margin-bottom: 0;
+    dd {
+      @apply pl-4
+    }
   }
 
   blockquote {
@@ -122,43 +121,15 @@
   }
 
   table {
-    padding: 0;
-  }
+    @apply mx-auto table-auto;
 
-  table tr {
-    border-top: 1px solid #cccccc;
-    background-color: white;
-    margin: 0;
-    padding: 0;
-  }
+    thead tr, tr:nth-child(2n) {
+        @apply bg-gray-100;
+      }
 
-  table tr:nth-child(2n) {
-    background-color: #f8f8f8;
-  }
-
-  table tr th {
-    font-weight: bold;
-    border: 1px solid #cccccc;
-    text-align: left;
-    margin: 0;
-    padding: 6px 13px;
-  }
-
-  table tr td {
-    border: 1px solid #cccccc;
-    text-align: left;
-    margin: 0;
-    padding: 6px 13px;
-  }
-
-  table tr th :first-child,
-  table tr td :first-child {
-    margin-top: 0;
-  }
-
-  table tr th :last-child,
-  table tr td :last-child {
-    margin-bottom: 0;
+    th, td {
+      @apply px-4 py-2 border border-gray-200 text-center
+    }
   }
 
   img {
@@ -166,11 +137,11 @@
   }
 
   code {
-    @apply px-1 mx-1 bg-gray-100 border rounded
+    @apply px-1 py-0.5 mx-0.5 text-sm bg-gray-100 border rounded
   }
 
   pre {
-    @apply px-4 py-2 bg-gray-800 overflow-auto rounded;
+    @apply px-4 py-2 bg-gray-800 overflow-auto rounded-lg;
 
     code {
       @apply p-0 m-0 whitespace-pre bg-transparent border-0

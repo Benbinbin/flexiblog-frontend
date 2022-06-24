@@ -56,7 +56,7 @@ const changeFlexiMode = () => {
   <div class="relative">
     <div
       v-show="showSubNav"
-      class="sm:hidden w-screen h-screen  absolute -z-20 -translate-y-full"
+      class="sm:hidden w-screen h-screen absolute -z-20 -translate-y-full"
       @click="showSubNav = false"
     />
     <Transition
@@ -105,28 +105,28 @@ const changeFlexiMode = () => {
     >
       <NuxtLink
         to="/"
-        class="p-3 flex flex-col justify-center items-center space-y-1"
+        class="p-3 flex flex-col justify-center items-center space-y-0.5"
         :class="(!showSubNav && route.path === '/') ? 'text-purple-500' : 'text-gray-500'"
         @click="showSubNav = false"
       >
-        <IconCustom name="ic:round-home" class="w-6 h-6" />
+        <IconCustom name="ic:round-home" class="w-5 h-5" />
         <p class="text-xs">
           Home
         </p>
       </NuxtLink>
       <button
-        class="p-3 flex flex-col justify-center items-center space-y-1"
+        class="p-3 flex flex-col justify-center items-center space-y-0.5"
         :class="showSubNav ? 'text-purple-500' : 'text-gray-500'"
         @click="showSubNav = !showSubNav"
       >
-        <IconCustom name="ic:round-category" class="w-6 h-6" />
+        <IconCustom name="ic:round-category" class="w-5 h-5" />
         <p class="text-xs">
           Category
         </p>
       </button>
       <button
         :title="`toggle flex mode to ${flexiMode === 'blog' ? 'note' : 'blog'}`"
-        class="w-12 h-12 flex justify-center items-center gap-1 bg-purple-100 hover:bg-purple-200 transition-colors duration-300 rounded-lg"
+        class="w-11 h-11 flex justify-center items-center gap-1 bg-purple-100 hover:bg-purple-200 transition-colors duration-300 rounded-lg"
         :class="flexiMode === 'blog' ? 'flex-col' : 'flex-row'"
         @click="changeFlexiMode"
       >
