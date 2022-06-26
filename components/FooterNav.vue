@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { NavItem } from '@nuxt/content/dist/runtime/types'
 
-// const route = useRoute()
+const route = useRoute()
 
 /**
  *
@@ -17,9 +17,6 @@ const showMoreOptions = ref(false)
  */
 const showCategoryOptions = ref(false)
 
-// if (route.path === '/list') {
-//   showCategoryOptions.value = true
-// }
 /**
  * set sub nav panel
  */
@@ -33,35 +30,6 @@ if (Array.isArray(navData.value) && navData.value.findIndex(item => item.title =
     categoryArr.value = articleFolder.children
   }
 }
-
-// const showSubNav = ref(false)
-// watch(showCategoryOptions, () => {
-//   if (showCategoryOptions.value && route.path === '/list') {
-//     showSubNav.value = true
-//   } else if (!showCategoryOptions.value) {
-//     showSubNav.value = false
-//   }
-// }, { immediate: true })
-
-// watch(showSubNav, () => {
-//   const body = document.body
-
-//   if (body && showSubNav.value) {
-//     body.classList.add('modal-open')
-//   };
-
-//   if (body && !showSubNav.value) {
-//     body.classList.remove('modal-open')
-//   }
-// })
-
-/**
- * transition effect
- */
-// const onAfterEnter = (el) => {
-//   el.classList.add('transform')
-//   el.classList.add('-translate-y-full')
-// }
 
 /**
  *
@@ -77,6 +45,13 @@ const changeFlexiMode = () => {
     flexiMode.value = 'blog'
   }
 }
+
+/**
+ *
+ * toggle catalog
+ *
+ */
+const showCatalog = useShowCatalog()
 </script>
 
 <template>
@@ -122,18 +97,6 @@ const changeFlexiMode = () => {
     <div
       class="py-0.5 sm:hidden sticky bottom-0 inset-x-0 flex justify-between items-center bg-gray-50 border-t border-gray-50 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.1),0_-2px_4px_-2px_rgb(0,0,0,0.1)] shadow-gray-200"
     >
-      <!-- <NuxtLink
-        to="/"
-        class="p-3 flex flex-col justify-center items-center space-y-0.5"
-        :class="(!showSubNav && route.path === '/') ? 'text-purple-500' : 'text-gray-500'"
-        @click="showSubNav = false"
-      >
-        <IconCustom name="ic:round-home" class="w-5 h-5" />
-        <p class="text-xs">
-          More
-        </p>
-      </NuxtLink> -->
-
       <button
         v-show="!showCategoryOptions"
         class="py-3 relative z-10 flex flex-col justify-center items-center space-y-1 bg-gray-50"
@@ -209,6 +172,19 @@ const changeFlexiMode = () => {
           </template>
         </div>
       </Transition>
+
+      <button
+        v-if="route.path && route.path.startsWith('/article')"
+        v-show="!showMoreOptions && !showCategoryOptions"
+        class="py-3 px-6 flex flex-col justify-center items-center space-y-1 bg-gray-50"
+        :class="showCatalog ? 'text-purple-500' : ' text-gray-500'"
+        @click="showCatalog = !showCatalog"
+      >
+        <IconCustom name="entypo:list" class="w-6 h-6" />
+        <p class="text-xs">
+          catalog
+        </p>
+      </button>
 
       <button
         v-show="!showMoreOptions && !showCategoryOptions"

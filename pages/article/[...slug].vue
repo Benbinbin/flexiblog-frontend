@@ -7,6 +7,38 @@ const route = useRoute()
 
 const { data, pending } = await useAsyncData(`${route.path}`, () => queryContent<ParsedContent>(route.path).findOne())
 
+// console.log(data)
+
+/**
+ *
+ * catalog
+ *
+ */
+const showCatalog = useShowCatalog()
+
+// set catalog width
+const catalogWidth = ref(0)
+
+onMounted(() => {
+  const setCatalogWidth = () => {
+    catalogWidth.value = (document.documentElement.clientWidth - 896) / 2
+    console.log(catalogWidth.value)
+  }
+
+  setCatalogWidth()
+
+  let resizeTimer = null
+  window.onresize = () => {
+    if (resizeTimer) {
+      clearTimeout(resizeTimer)
+    }
+    resizeTimer = setTimeout(() => {
+      setCatalogWidth()
+      resizeTimer = null
+    }, 300)
+  }
+})
+
 </script>
 
 <template>
@@ -24,10 +56,24 @@ const { data, pending } = await useAsyncData(`${route.path}`, () => queryContent
         </template>
       </ContentRenderer>
     </NuxtLayout>
+    <div
+      class="catalog-container h-full max-h-[80%] overflow-y-auto p-4 hidden xl:flex flex-col justify-center items-start fixed top-1/2 right-0 -translate-y-1/2"
+      :style="`width: ${catalogWidth}px`"
+    >
+      <ul v-if="!pending && data?.body?.toc && data.body.toc.links.length>0" v-show="true" class="w-full">
+        <CatalogItem
+          v-for="catalog in data.body.toc.links"
+          :key="catalog.id"
+          :item="catalog"
+          :depth="catalog.depth || 2"
+        />
+      </ul>
+    </div>
   </div>
 </template>
 
 <style lang="scss">
+
 .article-container {
   * {
     @apply selection:bg-purple-400 selection:text-white
@@ -159,5 +205,23 @@ const { data, pending } = await useAsyncData(`${route.path}`, () => queryContent
       @apply p-0 m-0 whitespace-pre bg-transparent border-0
     }
   }
+}
+
+.catalog-container {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // .heading-mark, button {
+  //   opacity: 50%;
+  //   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  //   transition-duration: 300ms;
+  // }
+
+  // &:hover {
+  //   .heading-mark, button {
+  //     opacity: 100%
+  //   }
+  // }
 }
 </style>
