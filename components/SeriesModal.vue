@@ -61,22 +61,27 @@ const showDetail = ref(false)
             <img src="~/assets/icons/empty.png" alt="empty" class="w-10 h-10">
             <p>Oops! There is no article.</p>
           </div>
-          <div class="grid grid-cols-2 sticky bottom-0 inset-x-0 text-xs">
+          <div
+            class="p-2 grid grid-cols-2 gap-2 justify-items-stretch sticky bottom-0 inset-x-0 text-xs bg-white rounded-b-lg"
+          >
             <button
-              class="p-4 flex justify-center items-center space-x-1 text-red-400 bg-red-50 hover:text-red-500 hover:bg-red-100 rounded-bl-lg"
+              class="px-4 py-2.5 flex justify-center items-center space-x-1 text-red-400 bg-red-50 hover:text-red-500 hover:bg-red-100 rounded"
               title="close window"
               @click="$emit('close')"
             >
-              <IconCustom name="ic:round-close" class="w-5 h-5" />
+              <IconCustom name="ic:round-close" class="w-4 h-4" />
+              <p>close</p>
             </button>
+
             <button
-              class="p-4 flex justify-center items-center space-x-1 rounded-br-lg"
+              class="px-4 py-2.5 flex justify-center items-center space-x-1 rounded"
               :class="showDetail ? 'text-white bg-green-500 hover:bg-green-400' : 'text-green-400 bg-green-50 hover:text-green-500 hover:bg-green-100'"
               :title="showDetail ? 'Less Details' : 'More Details'"
               @click="showDetail = !showDetail"
             >
-              <IconCustom v-show="showDetail" name="ic:round-unfold-less" class="w-5 h-5" />
-              <IconCustom v-show="!showDetail" name="ic:round-unfold-more" class="w-5 h-5" />
+              <IconCustom v-show="showDetail" name="ic:round-unfold-less" class="w-4 h-4" />
+              <IconCustom v-show="!showDetail" name="ic:round-unfold-more" class="w-4 h-4" />
+              <p><span class="hidden sm:inline">{{ showDetail ? 'Less' : 'More' }}</span> Detail</p>
             </button>
           </div>
         </div>

@@ -1,12 +1,5 @@
 <script setup lang="ts">
 import type { NavItem } from '@nuxt/content/dist/runtime/types'
-// const { data: categoryArr } = await useAsyncData('navigation', () => fetchContentNavigation())
-
-// const { data: article } = await useAsyncData('Article', () => queryContent('/').findOne())
-
-// console.log(categoryArr)
-
-// console.log(article)
 
 /**
  * set sub nav panel

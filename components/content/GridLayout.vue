@@ -16,7 +16,7 @@ const props = defineProps<{
 .grid-container {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   justify-content: center;
 }
 </style>

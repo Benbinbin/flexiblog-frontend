@@ -33,16 +33,16 @@ copyContentImages('content', 'public', ['.md'])
 export default defineNuxtConfig({
   app: {
     head: {
-      link: [
-        {
-          rel: 'stylesheet',
-          href: 'https://cdn.jsdelivr.net/npm/katex@0.15.0/dist/katex.min.css'
-        }
-      ],
+      // link: [
+      //   {
+      //     rel: 'stylesheet',
+      //     href: 'https://cdn.jsdelivr.net/npm/katex@0.15.0/dist/katex.min.css'
+      //   }
+      // ],
       style: [
         {
           type: 'text/css',
-          children: 'html, body { scroll-behavior: smooth } '
+          children: 'html, body { scroll-behavior: smooth }'
         },
         {
           type: 'text/css',
@@ -73,6 +73,10 @@ export default defineNuxtConfig({
       theme: 'one-dark-pro'
     },
     markdown: {
+      toc: {
+        depth: 5,
+        searchDepth: 5
+      },
       remarkPlugins: ['remark-math'],
       rehypePlugins: ['rehype-katex']
     }

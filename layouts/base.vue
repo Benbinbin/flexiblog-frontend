@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const route = useRoute()
+
 /**
  * listen page scroll
  */
@@ -29,7 +31,7 @@ onMounted(() => {
 
 <template>
   <div class="bg-gray-50 flex flex-col min-h-screen">
-    <header class="shrink-0 sm:sticky top-0 inset-x-0 z-30">
+    <header class="hidden sm:block shrink-0" :class="route.path === '/' ? 'sm:sticky top-0 inset-x-0 z-30' : 'relative z-30'">
       <HeaderNav />
     </header>
     <div class="grow flex flex-col">

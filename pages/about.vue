@@ -31,7 +31,7 @@
   @apply container mx-auto p-8;
 
   h1 {
-    @apply p-8 text-3xl font-bold text-center
+    @apply p-8 text-3xl md:text-5xl font-bold text-center
   }
 
   h2 {

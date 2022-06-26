@@ -28,11 +28,17 @@ const props = defineProps<{
       <IconCustom v-else name="ion:share-social" :class="props.iconClass ? props.iconClass :'w-10 h-10'" />
     </div>
 
-    <p :class="props.nameClass ? props.nameClass : 'text-xs text-gray-500'">
+    <p :class="props.nameClass ? props.nameClass : ''">
       {{ props.name }}
     </p>
   </a>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
+
+.social-card {
+  p {
+    @apply shrink-0 px-2 text-xs text-center text-gray-500
+  }
+}
 </style>

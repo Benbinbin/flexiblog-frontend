@@ -174,7 +174,7 @@ const showListDetail = useShowListDetail()
 <template>
   <div>
     <NuxtLayout name="base">
-      <div class="shrink-0 px-4 sm:px-8 py-4 space-y-4 bg-gray-50">
+      <div class="shrink-0 px-4 sm:px-8 py-4 space-y-4 sm:sticky top-0 inset-x-0 z-10 bg-gray-50">
         <div class="flex items-start sm:space-x-2">
           <button
             class="shrink-0 p-2.5 hidden sm:flex justify-center items-center transition-colors duration-300 rounded"
@@ -202,21 +202,30 @@ const showListDetail = useShowListDetail()
                 Category
               </p>
               <ul v-if="articleFolder" class="filter-list-container" :class="showMoreCategory ? 'max-h-96' : 'max-h-8'">
-                <li
-                  v-for="category in [{ title: 'all', _path: 'all' }, ...articleFolder.children as NavItem[]]"
-                  :key="category._path"
-                >
+                <li>
                   <button
                     class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded"
-                    :class="currentCategory === category.title.toLowerCase() ? 'text-white bg-purple-500 hover:bg-purple-400' : 'text-purple-400 hover:text-purple-500 bg-purple-100'"
-                    @click="setCategory(category.title.toLowerCase())"
+                    :class="currentCategory === 'all' ? 'text-white bg-purple-500 hover:bg-purple-400' : 'text-purple-400 hover:text-purple-500 bg-purple-100'"
+                    @click="setCategory('all')"
                   >
                     <IconCustom name="material-symbols:category-rounded" class="w-5 h-5" />
-                    <p>
-                      {{ category.title.toLowerCase() }}
-                    </p>
+                    <p>all</p>
                   </button>
                 </li>
+                <template v-for="category in articleFolder.children as NavItem[]">
+                  <li v-if="category.children" :key="category._path">
+                    <button
+                      class="px-2 py-1 flex items-center space-x-1 transition-colors duration-300 rounded"
+                      :class="currentCategory === category.title.toLowerCase() ? 'text-white bg-purple-500 hover:bg-purple-400' : 'text-purple-400 hover:text-purple-500 bg-purple-100'"
+                      @click="setCategory(category.title.toLowerCase())"
+                    >
+                      <IconCustom name="material-symbols:category-rounded" class="w-5 h-5" />
+                      <p>
+                        {{ category.title.toLowerCase() }}
+                      </p>
+                    </button>
+                  </li>
+                </template>
               </ul>
             </div>
 
@@ -293,19 +302,35 @@ const showListDetail = useShowListDetail()
               </div>
             </Transition>
 
-            <button
-              class="w-full p-2 sm:hidden text-purple-500 bg-purple-100 rounded"
-              @click="showMoreFilter = !showMoreFilter"
-            >
-              <IconCustom v-show="!showMoreFilter" name="ic:round-keyboard-arrow-down" class="w-4 h-4" />
-              <IconCustom v-show="showMoreFilter" name="ic:round-keyboard-arrow-up" class="w-4 h-4" />
-            </button>
+            <div class="flex items-center space-x-2">
+              <button
+                class="px-4 py-1 sm:hidden text-red-400 hover:text-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-300 rounded"
+                @click="setCategory('all')"
+              >
+                <IconCustom name="ant-design:clear-outlined" class="w-4 h-4" />
+              </button>
+              <button
+                class="grow py-1 sm:hidden text-purple-500 bg-purple-100 rounded"
+                @click="showMoreFilter = !showMoreFilter"
+              >
+                <IconCustom v-show="!showMoreFilter" name="ic:round-keyboard-arrow-down" class="w-4 h-4" />
+                <IconCustom v-show="showMoreFilter" name="ic:round-keyboard-arrow-up" class="w-4 h-4" />
+              </button>
+              <button
+                class="px-4 py-1 sm:hidden transition-colors duration-300 rounded"
+                :class="showListDetail ? 'text-white bg-green-500 hover:bg-green-400' : 'text-green-400 hover:text-green-500 bg-green-50 hover:bg-green-100'"
+                @click="showListDetail = !showListDetail"
+              >
+                <IconCustom v-show="showListDetail" name="ic:round-unfold-less" class="w-4 h-4" />
+                <IconCustom v-show="!showListDetail" name="ic:round-unfold-more" class="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
         <hr>
       </div>
 
-      <div class="shrink-0 mx-4 sm:mx-8 flex justify-between items-center text-sm">
+      <div class="shrink-0 mx-4 sm:mx-8 hidden sm:flex justify-between items-center text-sm">
         <button
           class="p-2 flex items-center text-red-400 hover:text-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-300 rounded"
           @click="setCategory('all')"
@@ -346,9 +371,9 @@ const showListDetail = useShowListDetail()
               <div class="flex items-start">
                 <IconCustom
                   :name="(!item.contentType || item.contentType === 'blog') ? 'ant-design:file-markdown-filled' : 'bi:filetype-json'"
-                  class="shrink-0 p-1 w-7 h-7"
+                  class="shrink-0 p-1 w-6 h-6 sm:w-7 sm:h-7"
                 />
-                <h2 class="grow font-bold text-lg">
+                <h2 class="grow font-bold text-base sm:text-lg">
                   {{ item.title }}
                 </h2>
               </div>

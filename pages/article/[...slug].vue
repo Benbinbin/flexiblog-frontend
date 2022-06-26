@@ -1,23 +1,33 @@
 <script setup lang="ts">
-// const route = useRoute()
+import type { ParsedContent } from '@nuxt/content/dist/runtime/types'
+
+const route = useRoute()
 
 // console.log(route)
+
+const { data, pending } = await useAsyncData(`${route.path}`, () => queryContent<ParsedContent>(route.path).findOne())
+
 </script>
 
 <template>
   <div>
     <NuxtLayout name="base">
-      <ContentDoc class=" article-container container mx-auto lg:max-w-4xl px-6 md:px-12 py-12">
-        <template #not-found>
-          <p>There is no such articles found.</p>
+      <ContentRenderer
+        v-if="!pending && data"
+        :value="data"
+        class="article-container container mx-auto lg:max-w-4xl px-6 md:px-12 py-12"
+      >
+        <template #empty>
+          <div class="article-container container mx-auto lg:max-w-4xl px-6 md:px-12 py-12">
+            <h1>Article is empty</h1>
+          </div>
         </template>
-      </ContentDoc>
+      </ContentRenderer>
     </NuxtLayout>
   </div>
 </template>
 
 <style lang="scss">
-
 .article-container {
   * {
     @apply selection:bg-purple-400 selection:text-white
@@ -37,7 +47,7 @@
   h4,
   h5,
   h6 {
-    @apply font-bold
+    @apply font-bold;
   }
 
   h2,
@@ -99,7 +109,7 @@
   }
 
   ul {
-   @apply list-disc;
+    @apply list-disc;
   }
 
   ol {
@@ -123,11 +133,13 @@
   table {
     @apply mx-auto table-auto;
 
-    thead tr, tr:nth-child(2n) {
-        @apply bg-gray-100;
-      }
+    thead tr,
+    tr:nth-child(2n) {
+      @apply bg-gray-100;
+    }
 
-    th, td {
+    th,
+    td {
       @apply px-4 py-2 border border-gray-200 text-center
     }
   }
