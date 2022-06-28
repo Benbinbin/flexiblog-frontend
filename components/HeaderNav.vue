@@ -38,7 +38,6 @@ const setSubNav = (show) => {
  * sub transition effect
  */
 const onAfterEnter = (el) => {
-  el.classList.add('transform')
   el.classList.add('translate-y-full')
 }
 
@@ -97,12 +96,12 @@ const changeFlexiMode = () => {
       </div>
     </div>
     <Transition
-      enter-from-class="transform translate-y-0"
+      enter-from-class="translate-y-0"
       enter-active-class="transition-all duration-300 ease-in"
-      enter-to-class="transform translate-y-full"
-      leave-from-class="transform translate-y-full"
+      enter-to-class="translate-y-full"
+      leave-from-class="translate-y-full"
       leave-active-class="transition-all duration-75 ease-out"
-      leave-to-class="transform translate-y-0"
+      leave-to-class="translate-y-0"
       @after-enter="onAfterEnter"
     >
       <div
@@ -112,7 +111,7 @@ const changeFlexiMode = () => {
         @mouseleave="setSubNav(false)"
       >
         <div v-if="articleFolder" class="sub-nav-items-container max-w-full px-6 py-8">
-          <NuxtLink to="/list" class="sub-nav-item-card">
+          <NuxtLink to="/list" class="sub-nav-item-card" @click="showSubNav=false">
             <IconCustom name="material-symbols:category-rounded" class="w-8 h-8" />
             <p class="py-2 font-bold text-center">
               All

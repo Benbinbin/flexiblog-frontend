@@ -41,14 +41,14 @@ onMounted(() => {
     <FooterContent />
 
     <Transition
-      enter-from-class="transform translate-y-36 md:translate-y-10 opacity-0"
+      enter-from-class="translate-y-36 md:translate-y-10 opacity-0"
       enter-active-class="transition-all duration-300 ease"
-      enter-to-class="transform translate-y-0 opacity-100"
-      leave-from-class="transform translate-y-0 opacity-100"
+      enter-to-class="translate-y-0 opacity-100"
+      leave-from-class="translate-y-0 opacity-100"
       leave-active-class="transition-all duration-75 ease"
-      leave-to-class="transform translate-y-36 md:translate-y-10 opacity-0"
+      leave-to-class="translate-y-36 md:translate-y-10 opacity-0"
     >
-      <BackToTop v-show="isShowBackBtn" class="w-10 h-10 fixed z-20 bottom-20 sm:bottom-4 right-2 sm:right-4" />
+      <BackToTop v-show="isShowBackBtn" />
     </Transition>
 
     <nav class="sm:hidden sticky bottom-0 left-0 right-0 z-50">

@@ -8,22 +8,10 @@ const clickHandler = () => {
 
 <template>
   <button
-    class="p-2 border border-slate-300 text-slate-500 hover:text-slate-600 bg-white hover:bg-slate-100 transition-color duration-300 rounded-lg"
+    class="p-3 sm:p-2 flex justify-center items-center fixed z-20 bottom-20 sm:bottom-4 right-2 sm:right-4 text-gray-500 bg-white hover:bg-gray-100 border border-gray-200 transition-colors duration-300 rounded-lg"
     @click="clickHandler"
   >
-    <svg
-      class="w-full"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      role="img"
-      preserveAspectRatio="xMidYMid meet"
-      viewBox="0 0 24 24"
-    >
-      <path
-        fill="currentColor"
-        d="M18 15a1 1 0 0 1-.64-.23L12 10.29l-5.37 4.32a1 1 0 0 1-1.41-.15a1 1 0 0 1 .15-1.41l6-4.83a1 1 0 0 1 1.27 0l6 5a1 1 0 0 1 .13 1.41A1 1 0 0 1 18 15Z"
-      />
-    </svg>
+    <IconCustom name="material-symbols:keyboard-arrow-up-rounded" class="w-5 h-5" />
   </button>
 </template>
 

@@ -15,14 +15,14 @@ const { data, pending } = await useAsyncData(`${route.path}`, () => queryContent
  *
  */
 const showCatalog = useShowCatalog()
-
+const toggleAllCatalog = useToggleAllCatalog()
 // set catalog width
 const catalogWidth = ref(0)
 
 onMounted(() => {
   const setCatalogWidth = () => {
     catalogWidth.value = (document.documentElement.clientWidth - 896) / 2
-    console.log(catalogWidth.value)
+    // console.log(catalogWidth.value)
   }
 
   setCatalogWidth()
@@ -39,42 +39,95 @@ onMounted(() => {
   }
 })
 
+// set active heading
+const activeHeadings = useActiveHeadings()
+let observer
+onMounted(() => {
+  // get headings list
+  const contentDom = document.getElementById('article-container')
+
+  if (contentDom) {
+    const headingDomList = contentDom.querySelectorAll('h2, h3, h4, h5, h6')
+    // set intersection observer
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const id = entry.target.getAttribute('id')
+        if (entry.intersectionRatio > 0) {
+          activeHeadings.value.add(id)
+        } else {
+          activeHeadings.value.delete(id)
+        }
+      })
+    })
+
+    if (headingDomList.length > 0) {
+      headingDomList.forEach((heading) => {
+        observer.observe(heading)
+      })
+    }
+  }
+})
+
+// watch(activeHeadings, () => {
+//   console.log(activeHeadings.value)
+// }, { deep: true })
 </script>
 
 <template>
   <div>
     <NuxtLayout name="base">
-      <ContentRenderer
-        v-if="!pending && data"
-        :value="data"
-        class="article-container container mx-auto lg:max-w-4xl px-6 md:px-12 py-12"
-      >
-        <template #empty>
-          <div class="article-container container mx-auto lg:max-w-4xl px-6 md:px-12 py-12">
-            <h1>Article is empty</h1>
-          </div>
-        </template>
-      </ContentRenderer>
+      <div id="article-container" class="container mx-auto lg:max-w-4xl px-6 md:px-12 py-12">
+        <ContentRenderer v-if="!pending && data" :value="data">
+          <template #empty>
+            <div>
+              <h1>Article is empty</h1>
+            </div>
+          </template>
+        </ContentRenderer>
+      </div>
     </NuxtLayout>
-    <div
-      class="catalog-container h-full max-h-[80%] overflow-y-auto p-4 hidden xl:flex flex-col justify-center items-start fixed top-1/2 right-0 -translate-y-1/2"
+    <aside
+      v-show="showCatalog"
+      id="sidebar-nav"
+      class="max-h-[70vh] pr-2 py-4 hidden xl:flex flex-col justify-center space-y-2 fixed top-1/2 right-0 -translate-y-1/2"
       :style="`width: ${catalogWidth}px`"
     >
-      <ul v-if="!pending && data?.body?.toc && data.body.toc.links.length>0" v-show="true" class="w-full">
-        <CatalogItem
-          v-for="catalog in data.body.toc.links"
-          :key="catalog.id"
-          :item="catalog"
-          :depth="catalog.depth || 2"
-        />
-      </ul>
-    </div>
+      <div class="shrink-0 p-2 flex justify-start items-center">
+        <div class="p-2 bg-gray-200 rounded flex gap-2">
+          <button
+            class="p-1 flex justify-center items-center rounded transition-colors duration-300 border border-purple-400"
+            :class="toggleAllCatalog ? 'bg-purple-500 hover:bg-purple-400 text-white' :'bg-purple-100 text-purple-400 hover:text-purple-500'"
+            @click="toggleAllCatalog = !toggleAllCatalog"
+          >
+            <IconCustom v-show="toggleAllCatalog" name="ic:round-unfold-less" class="w-4 h-4" />
+            <IconCustom v-show="!toggleAllCatalog" name="ic:round-unfold-more" class="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      <div class="catalog-container grow flex flex-col justify-start overflow-y-auto overscroll-none">
+        <ul v-if="!pending && data?.body?.toc && data.body.toc.links.length>0" v-show="true" class="w-full">
+          <CatalogItem
+            v-for="catalog in data.body.toc.links"
+            :key="catalog.id"
+            :item="catalog"
+            :depth="catalog.depth || 2"
+          />
+        </ul>
+      </div>
+    </aside>
+    <button
+      class="p-2 hidden xl:flex justify-center items-center fixed z-20 bottom-16 right-4 border border-gray-200 transition-colors duration-300 rounded-lg"
+      :class="showCatalog ? 'text-purple-500 bg-purple-100 hover:bg-purple-50 ' : 'text-gray-500 bg-white hover:bg-gray-100'"
+      @click="showCatalog = !showCatalog"
+    >
+      <IconCustom name="entypo:list" class="w-5 h-5" />
+    </button>
   </div>
 </template>
 
 <style lang="scss">
 
-.article-container {
+#article-container {
   * {
     @apply selection:bg-purple-400 selection:text-white
   }
@@ -211,17 +264,5 @@ onMounted(() => {
   &::-webkit-scrollbar {
     display: none;
   }
-
-  // .heading-mark, button {
-  //   opacity: 50%;
-  //   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-  //   transition-duration: 300ms;
-  // }
-
-  // &:hover {
-  //   .heading-mark, button {
-  //     opacity: 100%
-  //   }
-  // }
 }
 </style>
