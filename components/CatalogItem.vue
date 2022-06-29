@@ -11,13 +11,13 @@ const props = defineProps<{
   depth?: number
 }>()
 
-const toggleAllCatalog = useToggleAllCatalog()
+const toggleExpandAllCatalog = useToggleExpandAllCatalog()
 const expand = ref(true)
 
-watch(toggleAllCatalog, () => {
-  if (toggleAllCatalog.value) {
+watch(toggleExpandAllCatalog, () => {
+  if (toggleExpandAllCatalog.value) {
     expand.value = true
-  } else if (!toggleAllCatalog.value) {
+  } else if (!toggleExpandAllCatalog.value) {
     expand.value = false
   }
 })

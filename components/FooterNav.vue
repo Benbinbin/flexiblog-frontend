@@ -210,7 +210,7 @@ const showCatalog = useShowCatalog()
 }
 
 .option-item {
-  @apply p-2 text-purple-500 bg-purple-50 hover:bg-purple-100 border border-purple-500 rounded;
+  @apply px-4 py-2 text-purple-500 bg-purple-50 hover:bg-purple-100 border border-purple-500 rounded;
 }
 
 .sub-nav-scroll-container::-webkit-scrollbar {

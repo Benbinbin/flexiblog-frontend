@@ -1,39 +1,57 @@
 <script setup lang="ts">
 import type { ParsedContent } from '@nuxt/content/dist/runtime/types'
+import interact from 'interactjs'
 
 const route = useRoute()
 
-// console.log(route)
-
 const { data, pending } = await useAsyncData(`${route.path}`, () => queryContent<ParsedContent>(route.path).findOne())
-
-// console.log(data)
 
 /**
  *
  * catalog
  *
  */
+const sidebar = ref(null)
+
 const showCatalog = useShowCatalog()
-const toggleAllCatalog = useToggleAllCatalog()
-// set catalog width
+const toggleExpandAllCatalog = useToggleExpandAllCatalog()
+
 const catalogWidth = ref(0)
+const catalogFloat = ref(false)
+const toggleCatalogFloat = ref(false)
 
 onMounted(() => {
   const setCatalogWidth = () => {
     catalogWidth.value = (document.documentElement.clientWidth - 896) / 2
-    // console.log(catalogWidth.value)
   }
 
-  setCatalogWidth()
+  if (document.documentElement.clientWidth < 1280) {
+    catalogFloat.value = true
+    catalogWidth.value = 200
+  } else {
+    catalogFloat.value = false
+    setCatalogWidth()
+  }
 
   let resizeTimer = null
+
   window.onresize = () => {
     if (resizeTimer) {
       clearTimeout(resizeTimer)
     }
+
     resizeTimer = setTimeout(() => {
-      setCatalogWidth()
+      if (document.documentElement.clientWidth < 1280 && catalogFloat.value === false) {
+        catalogWidth.value = 200
+        catalogFloat.value = true
+      } else if (document.documentElement.clientWidth >= 1280) {
+        catalogFloat.value = false
+      }
+
+      if (!catalogFloat.value && !toggleCatalogFloat.value) {
+        setCatalogWidth()
+      }
+
       resizeTimer = null
     }, 300)
   }
@@ -68,9 +86,87 @@ onMounted(() => {
   }
 })
 
-// watch(activeHeadings, () => {
-//   console.log(activeHeadings.value)
-// }, { deep: true })
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect()
+  }
+})
+
+// enable the float catalog drag and resize feature
+// using interactjs package
+// refer to https://interactjs.io/
+onMounted(() => {
+  interact('#sidebar-nav')
+    .resizable({
+      // resize from all edges and corners
+      edges: { left: true, right: true, bottom: true, top: true },
+      listeners: {
+        move (event) {
+          const target = event.target
+          const computedStyle = getComputedStyle(target)
+
+          let bottom = (parseFloat(computedStyle.bottom) || 0)
+          let left = (parseFloat(computedStyle.left) || 0)
+
+          // update the element's style
+          target.style.width = event.rect.width + 'px'
+          target.style.height = event.rect.height + 'px'
+
+          // adjust bottom or left position when resizing from bottom or left edges
+          bottom -= event.deltaRect.bottom
+          left += event.deltaRect.left
+
+          target.style.bottom = bottom + 'px'
+          target.style.left = left + 'px'
+        }
+      },
+      modifiers: [
+        // keep the edges inside the parent
+        interact.modifiers.restrictEdges({
+          outer: 'parent'
+        }),
+
+        // minimum size
+        interact.modifiers.restrictSize({
+          min: { width: 200, height: 200 }
+        })
+      ],
+      inertia: true
+    })
+
+  interact('#sidebar-dragger')
+    .draggable({
+      listeners: {
+        move (event) {
+          if (sidebar.value) {
+            const computedStyle = getComputedStyle(sidebar.value)
+
+            const bottom = (parseFloat(computedStyle.bottom) || 0)
+            const left = (parseFloat(computedStyle.left) || 0)
+
+            sidebar.value.style.left = left + event.dx + 'px'
+            sidebar.value.style.bottom = bottom - event.dy + 'px'
+          }
+        }
+      },
+      modifiers: [
+        interact.modifiers.restrictRect({
+          restriction: 'body',
+          endOnly: true
+        })
+      ],
+      inertia: true
+    })
+
+  watch(toggleCatalogFloat, () => {
+    if (!toggleCatalogFloat.value) {
+      catalogFloat.value = false
+      catalogWidth.value = (document.documentElement.clientWidth - 896) / 2
+      sidebar.value.style.cssText = `width: ${catalogWidth.value}px`
+    }
+  })
+})
+
 </script>
 
 <template>
@@ -86,23 +182,39 @@ onMounted(() => {
         </ContentRenderer>
       </div>
     </NuxtLayout>
+
     <aside
       v-show="showCatalog"
       id="sidebar-nav"
-      class="max-h-[70vh] pr-2 py-4 hidden xl:flex flex-col justify-center space-y-2 fixed top-1/2 right-0 -translate-y-1/2"
+      ref="sidebar"
+      class="flex flex-col justify-center fixed z-30 select-none"
+      :class="catalogFloat || toggleCatalogFloat ? 'h-[70vh] p-2 bg-gray-100/90 backdrop-blur-sm bottom-20 left-4 border-[6px] sm:border-2 border-gray-100/90 focus-within:border-gray-200 shadow-md shadow-gray-500 rounded-lg touch-none' : 'max-h-[70vh] pr-2 py-2 top-1/2 right-0 -translate-y-1/2 '"
       :style="`width: ${catalogWidth}px`"
+      tabindex="0"
     >
-      <div class="shrink-0 p-2 flex justify-start items-center">
-        <div class="p-2 bg-gray-200 rounded flex gap-2">
-          <button
-            class="p-1 flex justify-center items-center rounded transition-colors duration-300 border border-purple-400"
-            :class="toggleAllCatalog ? 'bg-purple-500 hover:bg-purple-400 text-white' :'bg-purple-100 text-purple-400 hover:text-purple-500'"
-            @click="toggleAllCatalog = !toggleAllCatalog"
-          >
-            <IconCustom v-show="toggleAllCatalog" name="ic:round-unfold-less" class="w-4 h-4" />
-            <IconCustom v-show="!toggleAllCatalog" name="ic:round-unfold-more" class="w-4 h-4" />
-          </button>
-        </div>
+      <button
+        v-show="catalogFloat || toggleCatalogFloat"
+        id="sidebar-dragger"
+        class="mt-2 py-2 flex justify-center items-center hover:bg-gray-200 rounded transition-colors duration-300"
+      >
+        <IconCustom name="system-uicons:drag" class="w-4 h-4" />
+      </button>
+      <div class="p-2 flex items-center gap-2">
+        <button
+          class="p-1 flex justify-center items-center rounded transition-colors duration-300 border border-purple-400"
+          :class="toggleExpandAllCatalog ? 'bg-purple-500 hover:bg-purple-400 text-white' :'bg-purple-100 text-purple-400 hover:text-purple-500'"
+          @click="toggleExpandAllCatalog = !toggleExpandAllCatalog"
+        >
+          <IconCustom v-show="toggleExpandAllCatalog" name="ic:round-unfold-less" class="w-4 h-4" />
+          <IconCustom v-show="!toggleExpandAllCatalog" name="ic:round-unfold-more" class="w-4 h-4" />
+        </button>
+        <button
+          class="p-1 hidden xl:flex justify-center items-center rounded transition-colors duration-300 border border-purple-400"
+          :class="toggleCatalogFloat ? 'bg-purple-500 hover:bg-purple-400 text-white' :'bg-purple-100 text-purple-400 hover:text-purple-500'"
+          @click="toggleCatalogFloat = !toggleCatalogFloat"
+        >
+          <IconCustom name="clarity:window-restore-line" class="" />
+        </button>
       </div>
       <div class="catalog-container grow flex flex-col justify-start overflow-y-auto overscroll-none">
         <ul v-if="!pending && data?.body?.toc && data.body.toc.links.length>0" v-show="true" class="w-full">
@@ -115,8 +227,9 @@ onMounted(() => {
         </ul>
       </div>
     </aside>
+
     <button
-      class="p-2 hidden xl:flex justify-center items-center fixed z-20 bottom-16 right-4 border border-gray-200 transition-colors duration-300 rounded-lg"
+      class="p-2 hidden xl:flex justify-center items-center fixed z-40 bottom-16 right-4 border border-gray-200 transition-colors duration-300 rounded-lg"
       :class="showCatalog ? 'text-purple-500 bg-purple-100 hover:bg-purple-50 ' : 'text-gray-500 bg-white hover:bg-gray-100'"
       @click="showCatalog = !showCatalog"
     >

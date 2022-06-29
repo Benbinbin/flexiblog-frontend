@@ -314,6 +314,11 @@
   "resolved" "https://registry.npmjs.org/@iconify/vue/-/vue-3.2.1.tgz"
   "version" "3.2.1"
 
+"@interactjs/types@1.10.14":
+  "integrity" "sha512-ds6wAI9aDzojzr7UBvifUJIgogCL1ZL0nfBrXDv5GVMaW7gBglqejaeiQ1a0cRiHII/8p8s5AwPhhODTDM8RCQ=="
+  "resolved" "https://registry.npmjs.org/@interactjs/types/-/types-1.10.14.tgz"
+  "version" "1.10.14"
+
 "@ioredis/commands@^1.1.1":
   "integrity" "sha512-fsR4P/ROllzf/7lXYyElUJCheWdTJVJvOTps8v9IWKFATxR61ANOlnoPqhH099xYLrJGpc2ZQ28B3rMeUt5VQg=="
   "resolved" "https://registry.npmjs.org/@ioredis/commands/-/commands-1.1.1.tgz"
@@ -3497,6 +3502,13 @@
     "strip-ansi" "^6.0.0"
     "through" "^2.3.6"
     "wrap-ansi" "^7.0.0"
+
+"interactjs@^1.10.14":
+  "integrity" "sha512-UhwZhuFqmKLSJ1o04LlvFMdxohwvuMjVrQC96TI8/dEhF/dS47Tqm3Po5i4yKXaCMIqI8qdvmyfeIWdGLYSClA=="
+  "resolved" "https://registry.npmjs.org/interactjs/-/interactjs-1.10.14.tgz"
+  "version" "1.10.14"
+  dependencies:
+    "@interactjs/types" "1.10.14"
 
 "internal-slot@^1.0.3":
   "integrity" "sha512-O0DB1JC/sPyZl7cIo78n5dR7eUSwwpYPiXRhTzNxZVAMUuB8vlnRFyLxdrVToks6XPLVnFfbzaVd5WLjhgg+vA=="
