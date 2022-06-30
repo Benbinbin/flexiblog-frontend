@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface CatalogItem {
   id: string;
-  depth: number;
+  depth?: number;
   text: string;
   children?: CatalogItem[]
 }
@@ -11,16 +11,21 @@ const props = defineProps<{
   depth?: number
 }>()
 
-const toggleExpandAllCatalog = useToggleExpandAllCatalog()
+const toggleAllCatalog = useToggleAllCatalog()
 const expand = ref(true)
 
-watch(toggleExpandAllCatalog, () => {
-  if (toggleExpandAllCatalog.value) {
+watch(toggleAllCatalog, () => {
+  if (toggleAllCatalog.value === 'expand') {
     expand.value = true
-  } else if (!toggleExpandAllCatalog.value) {
+  } else if (toggleAllCatalog.value === 'collapse') {
     expand.value = false
   }
 })
+
+const toggleCatalogHandler = () => {
+  expand.value = !expand.value
+  toggleAllCatalog.value = ''
+}
 
 const bgColorMap = {
   2: {
@@ -90,7 +95,7 @@ const activeHeadings = useActiveHeadings()
         class="shrink-0 flex justify-center items-center rounded-full border-[3px] -translate-x-2.5"
         :class="(expand && props.item.children) ? `${borderColorMap[props.depth].expand} ${bgColorMap[props.depth].expand}` : (props.item.children ? `${borderColorMap[props.depth].collapse} ${bgColorMap[props.depth].collapseWithChildren}` : `${borderColorMap[props.depth].collapse} ${bgColorMap[props.depth].collapse}`)"
         :disabled="!props.item.children"
-        @click="expand = !expand"
+        @click="toggleCatalogHandler"
       >
         <IconCustom
           v-if="props.item.children"
