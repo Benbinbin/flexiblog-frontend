@@ -320,9 +320,9 @@
   "version" "1.10.14"
 
 "@ioredis/commands@^1.1.1":
-  "integrity" "sha512-fsR4P/ROllzf/7lXYyElUJCheWdTJVJvOTps8v9IWKFATxR61ANOlnoPqhH099xYLrJGpc2ZQ28B3rMeUt5VQg=="
-  "resolved" "https://registry.npmjs.org/@ioredis/commands/-/commands-1.1.1.tgz"
-  "version" "1.1.1"
+  "integrity" "sha512-Sx1pU8EM64o2BrqNpEO1CNLtKQwyhuXuqyfH7oGKCk+1a33d2r5saW8zNwm3j6BTExtjrv2BxTgzzkMwts6vGg=="
+  "resolved" "https://registry.npmjs.org/@ioredis/commands/-/commands-1.2.0.tgz"
+  "version" "1.2.0"
 
 "@jridgewell/gen-mapping@^0.1.0":
   "integrity" "sha512-sQXCasFk+U8lWYEe66WxRDOE9PjVz4vSM51fTu3Hw+ClTpUSQb718772vH3pyS5pShp6lvQM7SxgIDXXXmOX7w=="
@@ -427,9 +427,9 @@
     "fastq" "^1.6.0"
 
 "@nuxt/content@npm:@nuxt/content-edge@latest":
-  "integrity" "sha512-TCLZz3fp6st8bFFVGvmKwAV01GNd8yb+jW7LVL9S1VmkGdbCQjTqHMAknanQ2f5YCdSbkeFdCsM9yi+XpnWOBA=="
-  "resolved" "https://registry.npmjs.org/@nuxt/content-edge/-/content-edge-2.0.1-27598284.85ca12a.tgz"
-  "version" "2.0.1-27598284.85ca12a"
+  "integrity" "sha512-wGeEwoP+Nh0QYVodEIt7G9x7ODLADcec4riqErG/HZeMkEb6np/Sg09+la7x/8SY6Ret74Crjdv87yOBMUcomA=="
+  "resolved" "https://registry.npmjs.org/@nuxt/content-edge/-/content-edge-2.1.0-27609610.7dc5fed.tgz"
+  "version" "2.1.0-27609610.7dc5fed"
   dependencies:
     "@nuxt/kit" "^3.0.0-rc.4"
     "csvtojson" "^2.0.10"
@@ -452,7 +452,7 @@
     "micromark-util-character" "^1.1.0"
     "ohash" "^0.1.0"
     "parse-entities" "^4.0.0"
-    "pathe" "^0.3.0"
+    "pathe" "^0.3.1"
     "property-information" "^6.1.1"
     "rehype-external-links" "^1.0.1"
     "rehype-raw" "^6.1.1"
@@ -474,7 +474,7 @@
     "unist-builder" "^3.0.0"
     "unist-util-position" "^4.0.3"
     "unist-util-visit" "^4.1.0"
-    "unstorage" "^0.5.0"
+    "unstorage" "^0.5.2"
     "ws" "^8.8.0"
 
 "@nuxt/devalue@^2.0.0":
@@ -3144,10 +3144,10 @@
   dependencies:
     "duplexer" "^0.1.2"
 
-"h3@^0.7.9":
-  "integrity" "sha512-1AWtXxgKNOKhvwKlvx69X+dfAn6tFDmXQU6Vk4kLRvHr1vJZCxhRPWPC/NjYc+I/QG5bxTDM/NuP5r1SjpWHvQ=="
-  "resolved" "https://registry.npmjs.org/h3/-/h3-0.7.9.tgz"
-  "version" "0.7.9"
+"h3@^0.7.10", "h3@^0.7.9":
+  "integrity" "sha512-HcUQxlOocG2uf6PQLu3Bxk0KSXcTuxSF6kRclFBDO7y74Ml0wCwTvmoN5zmrzoxbNHecDNUrcGr8qSNGcOqAHQ=="
+  "resolved" "https://registry.npmjs.org/h3/-/h3-0.7.10.tgz"
+  "version" "0.7.10"
   dependencies:
     "cookie-es" "^0.5.0"
     "destr" "^1.1.1"
@@ -3519,10 +3519,10 @@
     "has" "^1.0.3"
     "side-channel" "^1.0.4"
 
-"ioredis@^5.0.6":
-  "integrity" "sha512-KUm7wPzIet9QrFMoMm09/4bkfVKBUD9KXwBitP3hrNkZ+A6NBndweXGwYIB/7szHcTZgfo7Kvx88SxljJV4D9A=="
-  "resolved" "https://registry.npmjs.org/ioredis/-/ioredis-5.0.6.tgz"
-  "version" "5.0.6"
+"ioredis@^5.1.0":
+  "integrity" "sha512-HYHnvwxFwefeUBj0hZFejLvd8Q/YNAfnZlZG/hSRxkRhXMs1H8soMEVccHd1WlLrKkynorXBsAtqDGskOdAfVQ=="
+  "resolved" "https://registry.npmjs.org/ioredis/-/ioredis-5.1.0.tgz"
+  "version" "5.1.0"
   dependencies:
     "@ioredis/commands" "^1.1.1"
     "cluster-key-slot" "^1.1.0"
@@ -3987,7 +3987,7 @@
   "resolved" "https://registry.npmjs.org/lines-and-columns/-/lines-and-columns-1.2.4.tgz"
   "version" "1.2.4"
 
-"listhen@^0.2.11", "listhen@^0.2.12", "listhen@^0.2.13":
+"listhen@^0.2.12", "listhen@^0.2.13":
   "integrity" "sha512-axfyPgsrypKohOglPjzMVj+6nSQuDfdDzq92tYEg4HO+YkvvMGz0bGeoGA+pdEC7a8gbIgLduf/62Pkk1a9jMQ=="
   "resolved" "https://registry.npmjs.org/listhen/-/listhen-0.2.13.tgz"
   "version" "0.2.13"
@@ -4060,7 +4060,7 @@
   "version" "4.4.0"
 
 "lodash.isarguments@^3.1.0":
-  "integrity" "sha1-L1c9hcaiQon/AGY7SRwdM4/zRYo="
+  "integrity" "sha512-chi4NHZlZqZD18a0imDHnZPrDeBbTtVN7GXMwuGdRH9qotxAjYs3aVLKc7zNOG9eddR5Ksd8rvFEBc9SsggPpg=="
   "resolved" "https://registry.npmjs.org/lodash.isarguments/-/lodash.isarguments-3.1.0.tgz"
   "version" "3.1.0"
 
@@ -4181,13 +4181,13 @@
     "unist-util-remove" "^3.0.0"
 
 "mdast-util-definitions@^5.0.0":
-  "integrity" "sha512-5hcR7FL2EuZ4q6lLMUK5w4lHT2H3vqL9quPvYZ/Ku5iifrirfMHiGdhxdXMUbUkDmz5I+TYMd7nbaxUhbQkfpQ=="
-  "resolved" "https://registry.npmjs.org/mdast-util-definitions/-/mdast-util-definitions-5.1.0.tgz"
-  "version" "5.1.0"
+  "integrity" "sha512-rQ+Gv7mHttxHOBx2dkF4HWTg+EE+UR78ptQWDylzPKaQuVGdG4HIoY3SrS/pCp80nZ04greFvXbVFHT+uf0JVQ=="
+  "resolved" "https://registry.npmjs.org/mdast-util-definitions/-/mdast-util-definitions-5.1.1.tgz"
+  "version" "5.1.1"
   dependencies:
     "@types/mdast" "^3.0.0"
     "@types/unist" "^2.0.0"
-    "unist-util-visit" "^3.0.0"
+    "unist-util-visit" "^4.0.0"
 
 "mdast-util-find-and-replace@^2.0.0":
   "integrity" "sha512-bz8hUWkMX7UcasORORcyBEsTKJ+dBiFwRPrm43hHC9NMRylIMLbfO5rwfeCN+UtY4AAi7s8WqXftb9eX6ZsqCg=="
@@ -5386,10 +5386,10 @@
   "resolved" "https://registry.npmjs.org/pathe/-/pathe-0.2.0.tgz"
   "version" "0.2.0"
 
-"pathe@^0.3.0":
-  "integrity" "sha512-3vUjp552BJzCw9vqKsO5sttHkbYqqsZtH0x1PNtItgqx8BXEXzoY1SYRKcL6BTyVh4lGJGLj0tM42elUDMvcYA=="
-  "resolved" "https://registry.npmjs.org/pathe/-/pathe-0.3.0.tgz"
-  "version" "0.3.0"
+"pathe@^0.3.0", "pathe@^0.3.1":
+  "integrity" "sha512-qhnmX0TOqlCvdWWTkoM83wh5J8fZ2yhbDEc9MlsnAEtEc+JCwxUKEwmd6pkY9hRe6JR1Uecbc14VcAKX2yFSTA=="
+  "resolved" "https://registry.npmjs.org/pathe/-/pathe-0.3.2.tgz"
+  "version" "0.3.2"
 
 "perfect-debounce@^0.1.3":
   "integrity" "sha512-NOT9AcKiDGpnV/HBhI22Str++XWcErO/bALvHCuhv33owZW/CjH8KAFLZDCmu3727sihe0wTxpDhyGc6M8qacQ=="
@@ -5964,12 +5964,12 @@
     "picomatch" "^2.2.1"
 
 "redis-errors@^1.0.0", "redis-errors@^1.2.0":
-  "integrity" "sha1-62LSrbFeTq9GEMBK/hUpOEJQq60="
+  "integrity" "sha512-1qny3OExCf0UvUV/5wpYKf2YwPcOqXzkwKKSmKHiE6ZMQs5heeE/c8eXK+PNllPvmjgAbfnsbpkGZWy8cBpn9w=="
   "resolved" "https://registry.npmjs.org/redis-errors/-/redis-errors-1.2.0.tgz"
   "version" "1.2.0"
 
 "redis-parser@^3.0.0":
-  "integrity" "sha1-tm2CjNyv5rS4pCin3vTGvKwxyLQ="
+  "integrity" "sha512-DJnGAeenTdpMEH6uAJRK/uiyEIH9WVsUmoLwzudwGJUwZPp80PDBWPHXSAGNPwNvIXAbe7MSUB1zQFugFml66A=="
   "resolved" "https://registry.npmjs.org/redis-parser/-/redis-parser-3.0.0.tgz"
   "version" "3.0.0"
   dependencies:
@@ -7108,14 +7108,6 @@
   dependencies:
     "@types/unist" "^2.0.0"
 
-"unist-util-visit-parents@^4.0.0":
-  "integrity" "sha512-1xAFJXAKpnnJl8G7K5KgU7FY55y3GcLIXqkzUj5QF/QVP7biUm0K0O2oqVkYsdjzJKifYeWn9+o6piAK2hGSHw=="
-  "resolved" "https://registry.npmjs.org/unist-util-visit-parents/-/unist-util-visit-parents-4.1.1.tgz"
-  "version" "4.1.1"
-  dependencies:
-    "@types/unist" "^2.0.0"
-    "unist-util-is" "^5.0.0"
-
 "unist-util-visit-parents@^5.0.0":
   "integrity" "sha512-y+QVLcY5eR/YVpqDsLf/xh9R3Q2Y4HxkZTp7ViLDU6WtJCEcPmRzW1gpdWDCDIqIlhuPDXOgttqPlykrHYDekg=="
   "resolved" "https://registry.npmjs.org/unist-util-visit-parents/-/unist-util-visit-parents-5.1.0.tgz"
@@ -7123,15 +7115,6 @@
   dependencies:
     "@types/unist" "^2.0.0"
     "unist-util-is" "^5.0.0"
-
-"unist-util-visit@^3.0.0":
-  "integrity" "sha512-Szoh+R/Ll68QWAyQyZZpQzZQm2UPbxibDvaY8Xc9SUtYgPsDzx5AWSk++UUt2hJuow8mvwR+rG+LQLw+KsuAKA=="
-  "resolved" "https://registry.npmjs.org/unist-util-visit/-/unist-util-visit-3.1.0.tgz"
-  "version" "3.1.0"
-  dependencies:
-    "@types/unist" "^2.0.0"
-    "unist-util-is" "^5.0.0"
-    "unist-util-visit-parents" "^4.0.0"
 
 "unist-util-visit@^4.0.0", "unist-util-visit@^4.1.0":
   "integrity" "sha512-n7lyhFKJfVZ9MnKtqbsqkQEk5P1KShj0+//V7mAcoI6bpbUjh3C/OG8HVD+pBihfh6Ovl01m8dkcv9HNqYajmQ=="
@@ -7175,17 +7158,17 @@
     "webpack-sources" "^3.2.3"
     "webpack-virtual-modules" "^0.4.3"
 
-"unstorage@^0.5.0":
-  "integrity" "sha512-DFLe2rwY6T3G/dUAvcsBMQu+L+j2aKNiE+D2b3giHVwQAqp3KZHVMoswhX+SDc9GK1+yoWZaC0MxpZFhrINawA=="
-  "resolved" "https://registry.npmjs.org/unstorage/-/unstorage-0.5.0.tgz"
-  "version" "0.5.0"
+"unstorage@^0.5.0", "unstorage@^0.5.2":
+  "integrity" "sha512-yihAdJiYzkmwJGBO9IV7XIlc9NpCBHlT9ZJxlMmPj+8uqkYvCkwwBO/c98+JCDLkmmdUPS0hnstl+q5bALsS+Q=="
+  "resolved" "https://registry.npmjs.org/unstorage/-/unstorage-0.5.4.tgz"
+  "version" "0.5.4"
   dependencies:
     "anymatch" "^3.1.2"
     "chokidar" "^3.5.3"
     "destr" "^1.1.1"
-    "h3" "^0.7.9"
-    "ioredis" "^5.0.6"
-    "listhen" "^0.2.11"
+    "h3" "^0.7.10"
+    "ioredis" "^5.1.0"
+    "listhen" "^0.2.13"
     "mri" "^1.2.0"
     "ohmyfetch" "^0.4.18"
     "ufo" "^0.8.4"

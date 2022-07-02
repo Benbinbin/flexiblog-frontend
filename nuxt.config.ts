@@ -70,7 +70,8 @@ export default defineNuxtConfig({
     // },
     highlight: {
       // See the available themes on https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-theme
-      theme: 'one-dark-pro'
+      theme: 'one-dark-pro',
+      preload: ['diff', 'html', 'css', 'ts', 'js', 'vue', 'python']
     },
     markdown: {
       toc: {

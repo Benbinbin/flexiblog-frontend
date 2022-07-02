@@ -1,14 +1,13 @@
 <script setup lang="ts">
 interface CatalogItem {
   id: string;
-  depth?: number;
+  depth: number;
   text: string;
   children?: CatalogItem[]
 }
 
 const props = defineProps<{
-  item: CatalogItem,
-  depth?: number
+  item: CatalogItem
 }>()
 
 const toggleAllCatalog = useToggleAllCatalog()
@@ -71,29 +70,72 @@ const borderColorMap = {
   6: { active: 'border-gray-500', expand: 'border-gray-300', collapse: 'border-gray-100' }
 }
 
+const buttonClass = computed(() => {
+  let classString = ''
+
+  if (catalogType.value === 'tree') {
+    classString += 'order-3'
+  } else {
+    classString += 'order-2 -translate-x-2.5'
+  }
+
+  if (expand.value && props.item.children) {
+    classString += ' ' + borderColorMap[props.item.depth].expand + ' ' + bgColorMap[props.item.depth].expand
+  } else if (props.item.children) {
+    classString += ' ' + borderColorMap[props.item.depth].collapse + ' ' + bgColorMap[props.item.depth].collapseWithChildren
+  } else {
+    classString += ' ' + borderColorMap[props.item.depth].collapse + ' ' + bgColorMap[props.item.depth].collapse
+  }
+
+  return classString
+})
+
+const textClass = computed(() => {
+  let classString = ''
+
+  if (activeHeadings.value.has(props.item.id)) {
+    classString += 'font-bold'
+  }
+
+  if (catalogType.value === 'tree') {
+    classString += ' ' + 'order-2'
+  } else {
+    classString += ' ' + 'order-3'
+  }
+
+  return classString
+})
+
 /**
  *
  * active heading
  *
  */
 const activeHeadings = useActiveHeadings()
+
+/**
+ *
+ * change catalog type to "tree" or "list"
+ *
+ */
+const catalogType = useCatalogType()
 </script>
 
 <template>
-  <li>
-    <div class="px-2 flex items-center">
+  <li class="flex" :class="catalogType === 'tree' ? 'flex-row justify-start items-center  gap-2' : 'flex-col'">
+    <div class="shrink-0 px-2 flex items-center">
       <div
-        class="shrink-0 self-stretch py-2 pr-4 flex justify-center items-center border-r"
-        :class="activeHeadings.has(props.item.id) ? `${borderColorMap[props.depth].active} border-solid` : `${borderColorMap[props.depth].expand} border-dashed`"
+        class="shrink-0 self-stretch order-1 py-2 flex justify-center items-center border-r"
+        :class="catalogType === 'tree' ? 'border-transparent' : (activeHeadings.has(props.item.id) ? `pr-4 ${borderColorMap[props.item.depth].active} border-solid ` : `pr-4 ${borderColorMap[props.item.depth].expand} border-dashed`)"
       >
-        <p class="heading-mark text-xs font-thin" :class="`${textColorMap[props.depth]}`">
-          H{{ props.item.depth || props.depth }}
+        <p class="heading-mark text-xs font-thin" :class="`${textColorMap[props.item.depth]}`">
+          H{{ props.item.depth }}
         </p>
       </div>
 
       <button
-        class="shrink-0 flex justify-center items-center rounded-full border-[3px] -translate-x-2.5"
-        :class="(expand && props.item.children) ? `${borderColorMap[props.depth].expand} ${bgColorMap[props.depth].expand}` : (props.item.children ? `${borderColorMap[props.depth].collapse} ${bgColorMap[props.depth].collapseWithChildren}` : `${borderColorMap[props.depth].collapse} ${bgColorMap[props.depth].collapse}`)"
+        class="shrink-0 flex justify-center items-center rounded-full border-[3px]"
+        :class="buttonClass"
         :disabled="!props.item.children"
         @click="toggleCatalogHandler"
       >
@@ -109,7 +151,7 @@ const activeHeadings = useActiveHeadings()
       <a
         :href="`#${props.item.id}`"
         class="py-2 px-2 text-sm text-gray-800 hover:text-purple-500 hover:bg-purple-100 transition-colors duration-300 rounded"
-        :class="activeHeadings.has(props.item.id) ? 'font-bold' : ''"
+        :class="textClass"
       >{{
         props.item.text }}</a>
     </div>
@@ -122,13 +164,12 @@ const activeHeadings = useActiveHeadings()
       leave-active-class="transition-all duration-100 ease-out"
       leave-to-class="translate-x-10 opacity-0"
     >
-      <ul v-if="props.item.children" v-show="expand">
-        <CatalogItem
-          v-for="subItem in props.item.children"
-          :key="subItem.id"
-          :item="subItem"
-          :depth="subItem.depth || props.depth+1"
-        />
+      <ul
+        v-if="props.item.children"
+        v-show="expand"
+        :class="catalogType === 'tree' ? `border-l ${borderColorMap[props.item.depth].expand} space-y-2 rounded-md` : ''"
+      >
+        <CatalogItem v-for="subItem in props.item.children" :key="subItem.id" :item="subItem" />
       </ul>
     </Transition>
   </li>

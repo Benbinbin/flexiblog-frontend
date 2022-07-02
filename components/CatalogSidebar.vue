@@ -3,7 +3,7 @@ import interact from 'interactjs'
 
 interface CatalogItem {
   id: string;
-  depth?: number;
+  depth: number;
   text: string;
   children?: CatalogItem[]
 }
@@ -12,39 +12,33 @@ const props = defineProps<{
   catalogs: CatalogItem[]
 }>()
 
+const sidebar = ref(null)
+const sidebarWidth = ref(0)
+
 /**
  *
- * catalog
+ * expand or collapse all catalog
  *
  */
-const sidebar = ref(null)
-
-// const showCatalog = useShowCatalog()
-
-const catalogType = useCatalogType()
-const toggleCatalogType = () => {
-  if (catalogType.value === 'tree') {
-    catalogType.value = 'list'
-  } else if (catalogType.value === 'list') {
-    catalogType.value = 'tree'
-  }
-}
-
+// set value to "expand" or "collapse" or ""
 const toggleAllCatalog = useToggleAllCatalog()
 
-const catalogWidth = ref(0)
+/**
+ *
+ * set the catalog init state
+ * auto adjust the catalog float state when resize window
+ *
+ */
 const catalogFloat = ref(false)
-const toggleCatalogFloat = ref(false)
-const resetFloatCatalogPosition = ref(false)
-
 onMounted(() => {
   const setCatalogWidth = () => {
-    catalogWidth.value = (document.documentElement.clientWidth - 896) / 2
+    sidebarWidth.value = (document.documentElement.clientWidth - 896) / 2
   }
 
+  // catalog init state
   if (document.documentElement.clientWidth < 1280) {
+    sidebarWidth.value = 200
     catalogFloat.value = true
-    catalogWidth.value = 200
   } else {
     catalogFloat.value = false
     setCatalogWidth()
@@ -59,7 +53,9 @@ onMounted(() => {
 
     resizeTimer = setTimeout(() => {
       if (document.documentElement.clientWidth < 1280 && catalogFloat.value === false) {
-        catalogWidth.value = 200
+        if (!toggleCatalogFloat.value) {
+          sidebarWidth.value = 200
+        }
         catalogFloat.value = true
       } else if (document.documentElement.clientWidth >= 1280) {
         catalogFloat.value = false
@@ -74,45 +70,46 @@ onMounted(() => {
   }
 })
 
-// set active heading
-// const activeHeadings = useActiveHeadings()
-// let observer
-// onMounted(() => {
-//   // get headings list
-//   const contentDom = document.getElementById('article-container')
+/**
+ *
+ * manual toggle catalog float state
+ *
+ */
 
-//   if (contentDom) {
-//     const headingDomList = contentDom.querySelectorAll('h2, h3, h4, h5, h6')
-//     // set intersection observer
-//     observer = new IntersectionObserver((entries) => {
-//       entries.forEach((entry) => {
-//         const id = entry.target.getAttribute('id')
-//         if (entry.intersectionRatio > 0) {
-//           activeHeadings.value.add(id)
-//         } else {
-//           activeHeadings.value.delete(id)
-//         }
-//       })
-//     })
+const toggleCatalogFloat = ref(false)
+const resetFloatCatalogPosition = ref(false)
 
-//     if (headingDomList.length > 0) {
-//       headingDomList.forEach((heading) => {
-//         observer.observe(heading)
-//       })
-//     }
-//   }
-// })
+onMounted(() => {
+  watch(toggleCatalogFloat, () => {
+    if (!toggleCatalogFloat.value) {
+      catalogFloat.value = false
+      catalogType.value = 'list'
+      sidebarWidth.value = (document.documentElement.clientWidth - 896) / 2
+      sidebar.value.style.cssText = `width: ${sidebarWidth.value}px`
+    }
+  })
 
-// onUnmounted(() => {
-//   if (observer) {
-//     observer.disconnect()
-//   }
-// })
+  watch(resetFloatCatalogPosition, () => {
+    if (resetFloatCatalogPosition.value) {
+      sidebar.value.style.width = '200px'
+      sidebar.value.style.height = '70vh'
+      sidebar.value.style.left = '16px'
+      if (document.documentElement.clientWidth < 640) {
+        sidebar.value.style.bottom = '80px'
+      } else {
+        sidebar.value.style.bottom = '16px'
+      }
+
+      resetFloatCatalogPosition.value = false
+    }
+  })
+})
 
 // enable the float catalog drag and resize feature
 // using interactjs package
 // refer to https://interactjs.io/
 onMounted(() => {
+  // set the sidebar resizable
   interact('#sidebar-nav')
     .resizable({
       // resize from all edges and corners
@@ -153,6 +150,7 @@ onMounted(() => {
       inertia: true
     })
 
+  // set sidebar draggable
   interact('#sidebar-dragger')
     .draggable({
       listeners: {
@@ -177,29 +175,24 @@ onMounted(() => {
       inertia: true
     })
 
-  watch(toggleCatalogFloat, () => {
-    if (!toggleCatalogFloat.value) {
-      catalogFloat.value = false
-      catalogWidth.value = (document.documentElement.clientWidth - 896) / 2
-      sidebar.value.style.cssText = `width: ${catalogWidth.value}px`
-    }
-  })
-
-  watch(resetFloatCatalogPosition, () => {
-    if (resetFloatCatalogPosition.value) {
-      sidebar.value.style.left = '16px'
-      if (document.documentElement.clientWidth < 640) {
-        sidebar.value.style.bottom = '80px'
-      } else {
-        sidebar.value.style.bottom = '16px'
-      }
-
-      resetFloatCatalogPosition.value = false
-    }
-  })
+  // set sidebar scalable (touch screen only)
 })
 
-// scroll the catalog
+// change catalog type to "tree" or "list"
+const catalogType = useCatalogType()
+
+const toggleCatalogType = () => {
+  if (catalogType.value === 'tree') {
+    catalogType.value = 'list'
+  } else if (catalogType.value === 'list') {
+    catalogType.value = 'tree'
+  }
+}
+
+/**
+ *
+ * scroll the catalog to top or bottom
+ */
 const catalogContainer = ref(null)
 const scrollCatalogTo = ref('')
 onMounted(() => {
@@ -220,16 +213,10 @@ onMounted(() => {
     ref="sidebar"
     class="flex flex-col justify-center fixed z-30 select-none"
     :class="catalogFloat || toggleCatalogFloat ? 'h-[70vh] p-2 bg-gray-100/90 backdrop-blur-sm bottom-20 sm:bottom-4 left-4 border-[6px] sm:border-2 border-gray-100/90 focus-within:border-gray-200 shadow-md shadow-gray-500 rounded-lg touch-none' : 'max-h-[70vh] pr-2 py-2 top-1/2 right-0 -translate-y-1/2'"
-    :style="`width: ${catalogWidth}px`"
+    :style="`width: ${sidebarWidth}px`"
     tabindex="0"
   >
     <div v-show="catalogFloat || toggleCatalogFloat" class="order-1 py-2 flex items-center gap-2">
-      <button
-        class="shrink-0 sidebar-btn bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500 border border-purple-400 rounded"
-        @click="resetFloatCatalogPosition = true"
-      >
-        <IconCustom name="bi:layout-sidebar-inset" class="w-4 h-4" />
-      </button>
       <button
         id="sidebar-dragger"
         class="grow p-2 flex justify-center items-center hover:bg-gray-200 rounded transition-colors duration-300 "
@@ -242,16 +229,19 @@ onMounted(() => {
       >
         <IconCustom name="clarity:window-restore-line" class="w-4 h-4" />
       </button>
-      <button
+      <!-- <button
         class="p-2 sm:p-1 flex xl:hidden justify-center items-center rounded transition-colors duration-300 border border-purple-400"
         :class="catalogType === 'tree' ? 'bg-purple-500 hover:bg-purple-400 text-white' : 'bg-purple-100 text-purple-400 hover:text-purple-500'"
         @click="toggleCatalogType"
       >
         <IconCustom name="icon-park-outline:tree-diagram" class="w-4 h-4" />
-      </button>
+      </button> -->
     </div>
 
-    <div class="py-2 flex items-center gap-2" :class="catalogFloat || toggleCatalogFloat ? 'order-3' : 'order-2'">
+    <div
+      class="sidebar-btn-container shrink-0 py-2 flex items-center gap-2 overflow-x-auto"
+      :class="catalogFloat || toggleCatalogFloat ? 'order-3' : 'order-2'"
+    >
       <button
         class="sidebar-btn bg-green-100 text-green-400 hover:text-green-500 active:text-white active:bg-green-500 border border-green-400"
         @click="toggleAllCatalog = 'expand'"
@@ -290,30 +280,42 @@ onMounted(() => {
 
       <button
         v-show="catalogFloat || toggleCatalogFloat"
-        class="hidden xl:flex p-2 sm:p-1 justify-center items-center rounded transition-colors duration-300 border border-purple-400"
+        class="sidebar-btn border border-purple-400"
         :class="catalogType === 'tree' ? 'bg-purple-500 hover:bg-purple-400 text-white' : 'bg-purple-100 text-purple-400 hover:text-purple-500'"
         @click="toggleCatalogType"
       >
         <IconCustom name="icon-park-outline:tree-diagram" class="w-4 h-4" />
       </button>
     </div>
+
     <div
       ref="catalogContainer"
-      class="catalog-container grow flex flex-col justify-start overflow-y-auto overscroll-none scroll-smooth"
-      :class="catalogFloat || toggleCatalogFloat ? 'order-2' : 'order-3'"
+      class="catalog-container grow w-full flex overflow-y-auto overscroll-none scroll-smooth"
+      :class="catalogFloat || toggleCatalogFloat ? (catalogType === 'tree' ? ' justify-start items-start order-2 gap-2 overflow-x-auto' :'flex-col justify-start order-2') : 'flex-col order-3 justify-start'"
     >
-      <ul class="w-full">
-        <CatalogItem
-          v-for="catalog in props.catalogs"
-          :key="catalog.id"
-          :item="catalog"
-          :depth="catalog.depth || 2"
-        />
+      <ul class="shrink-0" :class="catalogType === 'tree' ? 'space-y-2 p-4' : ''">
+        <CatalogItem v-for="catalog in props.catalogs" :key="catalog.id" :item="catalog" :depth="catalog.depth || 2" />
       </ul>
     </div>
   </aside>
+  <!-- eslint-disable-next-line vue/no-multiple-template-root -->
+  <button
+    v-show="catalogFloat || toggleCatalogFloat"
+    class="p-3 sm:p-2 flex justify-center items-center fixed bottom-[8.5rem] xl:bottom-28 right-2 sm:right-4 z-40 bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500 border border-gray-200 rounded-lg"
+    @click="resetFloatCatalogPosition = true"
+  >
+    <IconCustom name="bi:layout-sidebar-inset" class="w-5 h-5" />
+  </button>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 
+.catalog-container, .sidebar-btn-container {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+.sidebar-btn {
+  @apply p-2 sm:p-1 flex justify-center items-center transition-colors duration-300 rounded
+}
 </style>
