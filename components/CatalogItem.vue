@@ -74,7 +74,12 @@ const buttonClass = computed(() => {
   let classString = ''
 
   if (catalogType.value === 'tree') {
-    classString += 'order-3'
+    classString += 'order-3 translate-x-[10px]'
+
+    if (!props.item.children) {
+      classString += ' ' + 'border-transparent'
+      return classString
+    }
   } else {
     classString += 'order-2 -translate-x-2.5'
   }
@@ -122,8 +127,8 @@ const catalogType = useCatalogType()
 </script>
 
 <template>
-  <li class="flex" :class="catalogType === 'tree' ? 'flex-row justify-start items-center  gap-2' : 'flex-col'">
-    <div class="shrink-0 px-2 flex items-center">
+  <li class="flex" :class="catalogType === 'tree' ? 'flex-row justify-start items-center' : 'flex-col'">
+    <div class="shrink-0 flex items-center" :class="catalogType === 'tree' ? 'pl-4 w-32 justify-between' : 'px-2'">
       <div
         class="shrink-0 self-stretch order-1 py-2 flex justify-center items-center border-r"
         :class="catalogType === 'tree' ? 'border-transparent' : (activeHeadings.has(props.item.id) ? `pr-4 ${borderColorMap[props.item.depth].active} border-solid ` : `pr-4 ${borderColorMap[props.item.depth].expand} border-dashed`)"
@@ -145,7 +150,7 @@ const catalogType = useCatalogType()
           class="w-3.5 h-3.5 text-white transition-transform duration-500 delay-300"
           :class="expand ? 'rotate-45' : 'rotate-0'"
         />
-        <div v-if="!props.item.children" class="w-3.5 h-3.5" />
+        <div v-else class="w-3.5 h-3.5" />
       </button>
 
       <a

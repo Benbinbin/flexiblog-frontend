@@ -116,7 +116,6 @@ onUnmounted(() => {
     </NuxtLayout>
 
     <CatalogSidebar
-      v-show="showCatalog"
       v-if="!pending && data?.body?.toc && data.body.toc.links.length > 0"
       :catalogs="data.body.toc.links"
     />
