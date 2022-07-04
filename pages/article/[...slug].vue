@@ -12,59 +12,6 @@ const { data, pending } = await useAsyncData(`${route.path}`, () => queryContent
  */
 const showCatalog = useShowCatalog()
 
-// const catalogType = useCatalogType()
-// const toggleCatalogType = () => {
-//   if (catalogType.value === 'tree') {
-//     catalogType.value = 'list'
-//   } else if (catalogType.value === 'list') {
-//     catalogType.value = 'tree'
-//   }
-// }
-
-// const toggleAllCatalog = useToggleAllCatalog()
-
-// const catalogWidth = ref(0)
-// const catalogFloat = ref(false)
-// const toggleCatalogFloat = ref(false)
-// const resetFloatCatalogPosition = ref(false)
-
-// onMounted(() => {
-//   const setCatalogWidth = () => {
-//     catalogWidth.value = (document.documentElement.clientWidth - 896) / 2
-//   }
-
-//   if (document.documentElement.clientWidth < 1280) {
-//     catalogFloat.value = true
-//     catalogWidth.value = 200
-//   } else {
-//     catalogFloat.value = false
-//     setCatalogWidth()
-//   }
-
-//   let resizeTimer = null
-
-//   window.onresize = () => {
-//     if (resizeTimer) {
-//       clearTimeout(resizeTimer)
-//     }
-
-//     resizeTimer = setTimeout(() => {
-//       if (document.documentElement.clientWidth < 1280 && catalogFloat.value === false) {
-//         catalogWidth.value = 200
-//         catalogFloat.value = true
-//       } else if (document.documentElement.clientWidth >= 1280) {
-//         catalogFloat.value = false
-//       }
-
-//       if (!catalogFloat.value && !toggleCatalogFloat.value) {
-//         setCatalogWidth()
-//       }
-
-//       resizeTimer = null
-//     }, 300)
-//   }
-// })
-
 // set active heading
 const activeHeadings = useActiveHeadings()
 let observer
@@ -98,6 +45,7 @@ onUnmounted(() => {
   if (observer) {
     observer.disconnect()
   }
+  activeHeadings.value.clear()
 })
 </script>
 

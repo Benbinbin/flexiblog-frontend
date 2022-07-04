@@ -70,68 +70,61 @@ const borderColorMap = {
   6: { active: 'border-gray-500', expand: 'border-gray-300', collapse: 'border-gray-100' }
 }
 
-const buttonClass = computed(() => {
-  let classString = ''
+// sidebar state float or not
+const sidebarFloat = useSidebarFloat()
+const toggleSidebarFloat = useToggleSidebarFloat()
+// float catalog type
+const catalogType = useFloatCatalogType()
 
-  if (catalogType.value === 'tree') {
-    classString += 'order-3 translate-x-[10px]'
+const buttonClass = ref('')
+const textClass = ref('')
 
-    if (!props.item.children) {
-      classString += ' ' + 'border-transparent'
-      return classString
+watch([sidebarFloat, toggleSidebarFloat, catalogType], () => {
+  const buttonClassArr = []
+  const textClassArr = []
+
+  if ((sidebarFloat.value || toggleSidebarFloat.value) && catalogType.value === 'tree') {
+    buttonClassArr.push('order-3 translate-x-[10px]')
+    textClassArr.push('order-2')
+  } else {
+    buttonClassArr.push('order-2 -translate-x-2.5')
+    textClassArr.push('order-3')
+  }
+
+  if (props.item.children) {
+    if (expand.value) {
+      buttonClassArr.push(`${borderColorMap[props.item.depth].expand} ${bgColorMap[props.item.depth].expand}`)
+    } else {
+      buttonClassArr.push(`${borderColorMap[props.item.depth].collapse} ${bgColorMap[props.item.depth].collapseWithChildren}`)
     }
+  } else if ((sidebarFloat.value || toggleSidebarFloat.value) && catalogType.value === 'tree') {
+    buttonClassArr.push('border-transparent')
   } else {
-    classString += 'order-2 -translate-x-2.5'
+    buttonClassArr.push(`${borderColorMap[props.item.depth].collapse} ${bgColorMap[props.item.depth].collapse}`)
   }
 
-  if (expand.value && props.item.children) {
-    classString += ' ' + borderColorMap[props.item.depth].expand + ' ' + bgColorMap[props.item.depth].expand
-  } else if (props.item.children) {
-    classString += ' ' + borderColorMap[props.item.depth].collapse + ' ' + bgColorMap[props.item.depth].collapseWithChildren
-  } else {
-    classString += ' ' + borderColorMap[props.item.depth].collapse + ' ' + bgColorMap[props.item.depth].collapse
-  }
-
-  return classString
+  buttonClass.value = buttonClassArr.join(' ')
+  textClass.value = textClassArr.join(' ')
+}, {
+  immediate: true
 })
 
-const textClass = computed(() => {
-  let classString = ''
-
-  if (activeHeadings.value.has(props.item.id)) {
-    classString += 'font-bold'
-  }
-
-  if (catalogType.value === 'tree') {
-    classString += ' ' + 'order-2'
-  } else {
-    classString += ' ' + 'order-3'
-  }
-
-  return classString
-})
-
-/**
- *
- * active heading
- *
- */
+// active heading
 const activeHeadings = useActiveHeadings()
-
-/**
- *
- * change catalog type to "tree" or "list"
- *
- */
-const catalogType = useCatalogType()
 </script>
 
 <template>
-  <li class="flex" :class="catalogType === 'tree' ? 'flex-row justify-start items-center' : 'flex-col'">
-    <div class="shrink-0 flex items-center" :class="catalogType === 'tree' ? 'pl-4 w-32 justify-between' : 'px-2'">
+  <li
+    class="flex"
+    :class="(sidebarFloat || toggleSidebarFloat) && catalogType === 'tree' ? 'flex-row justify-start items-center' : 'flex-col'"
+  >
+    <div
+      class="shrink-0 flex items-center"
+      :class="(sidebarFloat || toggleSidebarFloat) && catalogType === 'tree' ? 'pl-4 w-32 justify-between' : 'px-2'"
+    >
       <div
         class="shrink-0 self-stretch order-1 py-2 flex justify-center items-center border-r"
-        :class="catalogType === 'tree' ? 'border-transparent' : (activeHeadings.has(props.item.id) ? `pr-4 ${borderColorMap[props.item.depth].active} border-solid ` : `pr-4 ${borderColorMap[props.item.depth].expand} border-dashed`)"
+        :class="(sidebarFloat || toggleSidebarFloat) && catalogType === 'tree' ? 'border-transparent' : (activeHeadings.has(props.item.id) ? `pr-4 ${borderColorMap[props.item.depth].active} border-solid ` : `pr-4 ${borderColorMap[props.item.depth].expand} border-dashed`)"
       >
         <p class="heading-mark text-xs font-thin" :class="`${textColorMap[props.item.depth]}`">
           H{{ props.item.depth }}
@@ -157,6 +150,7 @@ const catalogType = useCatalogType()
         :href="`#${props.item.id}`"
         class="py-2 px-2 text-sm text-gray-800 hover:text-purple-500 hover:bg-purple-100 transition-colors duration-300 rounded"
         :class="textClass"
+        :style="activeHeadings.has(props.item.id) ? 'font-weight: bold' : ''"
       >{{
         props.item.text }}</a>
     </div>
@@ -172,7 +166,7 @@ const catalogType = useCatalogType()
       <ul
         v-if="props.item.children"
         v-show="expand"
-        :class="catalogType === 'tree' ? `border-l ${borderColorMap[props.item.depth].expand} space-y-2 rounded-md` : ''"
+        :class="(sidebarFloat || toggleSidebarFloat) && catalogType === 'tree' ? `border-l ${borderColorMap[props.item.depth].expand} space-y-2 rounded-md` : ''"
       >
         <CatalogItem v-for="subItem in props.item.children" :key="subItem.id" :item="subItem" />
       </ul>

@@ -6,6 +6,8 @@ export const useShowListDetail = () => useState<Boolean>('showListDetail', () =>
 
 // article page catalog
 export const useShowCatalog = () => useState<Boolean>('showCatalog', () => true)
-export const useCatalogType = () => useState<'list' | 'tree'>('catalogType', () => 'list')
+export const useSidebarFloat = () => useState<Boolean>('sidebarFloat', () => false)
+export const useToggleSidebarFloat = () => useState<Boolean>('toggleSidebarFloat', () => false)
+export const useFloatCatalogType = () => useState<'list' | 'tree'>('catalogType', () => 'list')
 export const useToggleAllCatalog = () => useState<'expand' | 'collapse' | ''>('toggleAllCatalog', () => '')
 export const useActiveHeadings = () => useState<Set<string>>('activeHeadings', () => new Set())
