@@ -85,7 +85,7 @@ watch([sidebarFloat, toggleSidebarFloat, catalogType], () => {
 
   if ((sidebarFloat.value || toggleSidebarFloat.value) && catalogType.value === 'tree') {
     buttonClassArr.push('order-3 translate-x-[10px]')
-    textClassArr.push('order-2')
+    textClassArr.push('grow order-2')
   } else {
     buttonClassArr.push('order-2 -translate-x-2.5')
     textClassArr.push('order-3')
@@ -120,7 +120,7 @@ const activeHeadings = useActiveHeadings()
   >
     <div
       class="shrink-0 flex items-center"
-      :class="(sidebarFloat || toggleSidebarFloat) && catalogType === 'tree' ? 'pl-4 w-32 justify-between' : 'px-2'"
+      :class="(sidebarFloat || toggleSidebarFloat) && catalogType === 'tree' ? 'pl-4 w-40 justify-between' : 'px-2'"
     >
       <div
         class="shrink-0 self-stretch order-1 py-2 flex justify-center items-center border-r"

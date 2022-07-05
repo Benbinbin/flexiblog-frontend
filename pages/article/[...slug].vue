@@ -13,14 +13,13 @@ const { data, pending } = await useAsyncData(`${route.path}`, () => queryContent
 const showCatalog = useShowCatalog()
 
 // set active heading
+const articleContainer = ref(null)
 const activeHeadings = useActiveHeadings()
 let observer
 onMounted(() => {
   // get headings list
-  const contentDom = document.getElementById('article-container')
-
-  if (contentDom) {
-    const headingDomList = contentDom.querySelectorAll('h2, h3, h4, h5, h6')
+  if (articleContainer.value) {
+    const headingDomList = articleContainer.value.querySelectorAll('h2, h3, h4, h5, h6')
     // set intersection observer
     observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -52,7 +51,7 @@ onUnmounted(() => {
 <template>
   <div>
     <NuxtLayout name="base">
-      <div id="article-container" class="container mx-auto lg:max-w-4xl px-6 md:px-12 py-12">
+      <div ref="articleContainer" class="article-container container mx-auto lg:max-w-4xl px-6 md:px-12 py-12">
         <ContentRenderer v-if="!pending && data" :value="data">
           <template #empty>
             <div>
@@ -80,13 +79,13 @@ onUnmounted(() => {
 
 <style lang="scss">
 
-#article-container {
+.article-container {
   * {
     @apply selection:bg-purple-400 selection:text-white
   }
 
   p a {
-    @apply text-blue-500 underline decoration-4 decoration-blue-400 hover:decoration-blue-500 visited:decoration-blue-100 hover:visited:decoration-blue-200 transition-colors duration-300;
+    @apply text-blue-500 underline decoration-2 decoration-blue-400 hover:decoration-blue-500 visited:decoration-blue-100 hover:visited:decoration-blue-200 transition-colors duration-300;
   }
 
   p {
@@ -134,12 +133,10 @@ onUnmounted(() => {
     @apply py-2 text-lg md:text-xl before:content-['H6'] before:text-xs md:before:text-sm sm:-translate-x-4;
   }
 
-  div,
   p,
   blockquote,
   img,
-  dl,
-  pre {
+  dl {
     @apply my-4
   }
 
@@ -202,14 +199,6 @@ onUnmounted(() => {
 
   code {
     @apply px-1 py-0.5 mx-0.5 text-sm bg-gray-100 border rounded
-  }
-
-  pre {
-    @apply px-4 py-2 bg-gray-800 overflow-auto rounded-lg;
-
-    code {
-      @apply p-0 m-0 whitespace-pre bg-transparent border-0
-    }
   }
 }
 </style>
