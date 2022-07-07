@@ -11,3 +11,6 @@ export const useToggleSidebarFloat = () => useState<Boolean>('toggleSidebarFloat
 export const useFloatCatalogType = () => useState<'list' | 'tree'>('catalogType', () => 'list')
 export const useToggleAllCatalog = () => useState<'expand' | 'collapse' | ''>('toggleAllCatalog', () => '')
 export const useActiveHeadings = () => useState<Set<string>>('activeHeadings', () => new Set())
+
+// article page zoom image
+export const useZoomImage = () => useState<Boolean>('zoomImage', () => false)

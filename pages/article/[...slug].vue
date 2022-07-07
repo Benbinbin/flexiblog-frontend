@@ -46,6 +46,25 @@ onUnmounted(() => {
   }
   activeHeadings.value.clear()
 })
+
+const zoomImage = useZoomImage()
+
+// const pressEsc = useEsc()
+// watch(pressEsc, () => {
+//   if (pressEsc.value) {
+//     zoomImage.value = false
+//     pressEsc.value = false
+//   }
+// })
+onMounted(() => {
+  if (document) {
+    document.addEventListener('keyup', function (event) {
+      if (event.key === 'Escape') {
+        zoomImage.value = false
+      }
+    })
+  }
+})
 </script>
 
 <template>
@@ -135,7 +154,6 @@ onUnmounted(() => {
 
   p,
   blockquote,
-  img,
   dl {
     @apply my-4
   }
@@ -191,10 +209,6 @@ onUnmounted(() => {
     td {
       @apply px-4 py-2 border border-gray-200 text-center
     }
-  }
-
-  img {
-    @apply max-w-full mx-auto
   }
 
   code {

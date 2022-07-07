@@ -36,13 +36,6 @@ const resetFloatSidebarHandler = () => {
   }
 }
 
-// watch(resetFloatSidebar, () => {
-//   if (resetFloatSidebar.value) {
-//     resetFloatSidebarHandler()
-//   }
-//   resetFloatSidebar.value = false
-// })
-
 /**
  *
  * set the sidebar init state
@@ -56,16 +49,6 @@ onMounted(() => {
 
   // base on the page init state to set the sidebar init state
   if (document.documentElement.clientWidth < 1280) {
-    // sidebarWidth.value = 300
-    // sidebarHeight.value = 300
-    // sidebarLeft.value = 16
-
-    // if (document.documentElement.clientWidth < 640) {
-    //   sidebarBottom.value = 80
-    // } else {
-    //   sidebarBottom.value = 16
-    // }
-
     if (document.documentElement.clientWidth <= 640) {
       sidebarBottom.value = 80
     }
@@ -192,11 +175,6 @@ onMounted(() => {
       listeners: {
         move (event) {
           if (sidebarFloat.value || toggleSidebarFloat.value) {
-            // const computedStyle = getComputedStyle(sidebar.value)
-
-            // const bottom = (parseFloat(computedStyle.bottom) || 0)
-            // const left = (parseFloat(computedStyle.left) || 0)
-
             sidebarLeft.value += event.dx
             sidebarBottom.value -= event.dy
           }

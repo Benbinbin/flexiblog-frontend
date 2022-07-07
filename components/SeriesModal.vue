@@ -70,7 +70,7 @@ const showDetail = ref(false)
               @click="$emit('close')"
             >
               <IconCustom name="ic:round-close" class="w-4 h-4" />
-              <p>close</p>
+              <span>Esc</span>
             </button>
 
             <button

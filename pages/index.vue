@@ -29,20 +29,35 @@ const setSeriesModal = (series) => {
 }
 
 watch(showSeriesModal, () => {
-  const body = document.body // console.log(body)
+  const body = document.body
 
   if (body && showSeriesModal.value) {
     body.classList.add('modal-open')
   }
-
-  ;
 
   if (body && !showSeriesModal.value) {
     body.classList.remove('modal-open')
   }
 })
 
-// const flexiMode = useFlexiMode()
+onMounted(() => {
+  if (document) {
+    document.addEventListener('keyup', function (event) {
+      if (event.key === 'Escape') {
+        setSeriesModal('')
+      }
+    })
+  }
+})
+
+// const pressEsc = useEsc()
+
+// watch(pressEsc, () => {
+//   if (pressEsc.value) {
+//     setSeriesModal('')
+//     pressEsc.value = false
+//   }
+// })
 </script>
 
 <template>
