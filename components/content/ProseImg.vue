@@ -27,10 +27,17 @@ watch(zoom, () => {
   }
 })
 
+const removeClass = () => {
+  if (zoom.value && image.value) {
+    image.value.classList.remove('transition-transform')
+    image.value.classList.remove('duration-200')
+    image.value.classList.remove('ease-in-out')
+  }
+}
+
 const image = ref(null)
 
 const scale = ref(1)
-const dScale = 0.4
 let translateX = 0
 let translateY = 0
 let screenScale = 1
@@ -105,6 +112,7 @@ const clickHandler = (state) => {
 
 // scroll the wheel to zoom on the mouse point
 // refer to https://stackoverflow.com/a/70251437/10699431
+const dScale = 0.4
 const scrollToZoomHandler = (event) => {
   // zoom the image if scroll
   if (zoom.value) {
@@ -132,6 +140,83 @@ const scrollToZoomHandler = (event) => {
     transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
   }
 }
+
+let pointerA = null
+let pointerB = null
+let prevDistance = 0
+
+const getDistance = (a, b) => {
+  return Math.sqrt((b.clientX - a.clientX) ** 2 + (b.clientY - a.clientY) ** 2)
+}
+
+const pointerDownHandler = (event) => {
+  if (!zoom.value) { return }
+
+  // console.log(event)
+
+  if (!pointerA) {
+    pointerA = event
+  } else if (!pointerB) {
+    pointerB = event
+  }
+
+  if (pointerA && pointerB) {
+    prevDistance = getDistance(pointerA, pointerB)
+    console.log(prevDistance)
+  }
+}
+
+const pointerMoveHandler = (event) => {
+  // console.log(event)
+  if (zoom.value && pointerA && pointerB) {
+    event.preventDefault()
+
+    const originX = (pointerA.clientX + pointerB.clientX) / 2
+    const originY = (pointerA.clientY + pointerB.clientY) / 2
+
+    const imageRect = image.value.getBoundingClientRect()
+
+    const originRelativeX = originX - imageRect.x
+    const originRelativeY = originY - imageRect.y
+
+    if (event.pointerId === pointerA.pointerId) {
+      pointerA = event
+    } else if (event.pointerId === pointerB.pointerId) {
+      pointerB = event
+    }
+
+    const currentDistance = getDistance(pointerA, pointerB)
+
+    const divisor = event.ctrlKey ? 100 : 300
+
+    const distanceDiff = (currentDistance - prevDistance) / divisor
+    console.log(distanceDiff)
+
+    const currentScale = scale.value + distanceDiff
+    if (currentScale < 0.6 || currentScale > 10) { return }
+
+    scale.value = currentScale
+
+    translateX += (-originRelativeX * distanceDiff) + (image.value.clientWidth * distanceDiff / 2)
+    translateY += (-originRelativeY * distanceDiff) + (image.value.clientHeight * distanceDiff / 2)
+
+    prevDistance = currentDistance
+
+    transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
+  }
+}
+
+const pointerCancelHandler = (event) => {
+  if (pointerA && event.pointerId === pointerA.pointerId) {
+    pointerA = null
+  } else if (pointerB && event.pointerId === pointerB.pointerId) {
+    pointerB = null
+  }
+
+  if (!pointerA || !pointerB) {
+    prevDistance = 0
+  }
+}
 </script>
 
 <template>
@@ -141,10 +226,11 @@ const scrollToZoomHandler = (event) => {
       class="fixed inset-0 z-[998] bg-white/30 backdrop-blur-sm cursor-zoom-out"
       @click="clickHandler(false)"
     />
+
     <img
       ref="image"
-      class="mx-auto my-4 transition-transform duration-200 ease-in-out border border-red-400 "
-      :class="zoom ? 'relative z-[999] cursor-move' : 'cursor-zoom-in'"
+      class="transition-transform duration-200 ease-in-out mx-auto my-4  border border-red-400 touch-none"
+      :class="zoom ? 'relative z-[999] cursor-move' : 'transition-transform duration-200 ease-in-out'"
       :src="props.src"
       :alt="props.alt"
       :width="props.width"
@@ -153,6 +239,11 @@ const scrollToZoomHandler = (event) => {
       @click="clickHandler(true)"
       @dblclick.prevent="resetTransform('screen')"
       @wheel="scrollToZoomHandler"
+      @pointerdown="pointerDownHandler"
+      @pointermove="pointerMoveHandler"
+      @pointercancel="pointerCancelHandler"
+      @pointerup="pointerCancelHandler"
+      @transitionend="removeClass"
     >
 
     <Transition
@@ -165,8 +256,8 @@ const scrollToZoomHandler = (event) => {
     >
       <button
         v-show="zoom && showBtns"
-        class="px-4 sm:px-2 py-2 flex justify-center items-center bg-purple-100 text-xs text-purple-400 hover:text-purple-500 active:text-white
-        active:bg-purple-500 border border-purple-500 fixed top-4 left-4 z-[999] rounded"
+        class="h-fit px-4 sm:px-2 py-2 flex justify-center items-center bg-purple-100 text-xs text-purple-400 hover:text-purple-500 active:text-white
+        active:bg-purple-500 border border-purple-500 fixed bottom-4 sm:top-4 left-4 z-[1000] rounded"
         @click="resetTransform('screen')"
       >
         {{ Math.round(scale*100) }}%
@@ -182,8 +273,8 @@ const scrollToZoomHandler = (event) => {
     >
       <button
         v-show="zoom && showBtns"
-        class="px-4 sm:px-2 py-2 flex justify-center items-center gap-1 bg-red-100 text-xs text-red-400 hover:text-red-500 active:text-white
-        active:bg-red-500 border border-red-500 fixed top-4 right-4 z-[999] rounded"
+        class="h-fit px-4 sm:px-2 py-2 flex justify-center items-center gap-1 bg-red-100 text-xs text-red-400 hover:text-red-500 active:text-white
+        active:bg-red-500 border border-red-500 fixed bottom-4 sm:top-4 right-4 z-[1000] rounded"
         @click="clickHandler(false)"
       >
         <span>Esc</span>
