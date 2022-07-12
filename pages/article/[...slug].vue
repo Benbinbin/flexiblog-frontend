@@ -47,20 +47,19 @@ onUnmounted(() => {
   activeHeadings.value.clear()
 })
 
-const zoomImage = useZoomImage()
+/**
+ *
+ * zoom image
+ *
+ */
+const zoomImageState = useShowZoomImage()
+// const zoomImage = useZoomImage()
 
-// const pressEsc = useEsc()
-// watch(pressEsc, () => {
-//   if (pressEsc.value) {
-//     zoomImage.value = false
-//     pressEsc.value = false
-//   }
-// })
 onMounted(() => {
   if (document) {
     document.addEventListener('keyup', function (event) {
       if (event.key === 'Escape') {
-        zoomImage.value = false
+        zoomImageState.value = 'hiding'
       }
     })
   }
@@ -93,11 +92,13 @@ onMounted(() => {
     >
       <IconCustom name="entypo:list" class="w-5 h-5" />
     </button>
+    <Teleport to="body">
+      <ImageLightbox />
+    </Teleport>
   </div>
 </template>
 
 <style lang="scss">
-
 .article-container {
   * {
     @apply selection:bg-purple-400 selection:text-white

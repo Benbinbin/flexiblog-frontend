@@ -13,4 +13,13 @@ export const useToggleAllCatalog = () => useState<'expand' | 'collapse' | ''>('t
 export const useActiveHeadings = () => useState<Set<string>>('activeHeadings', () => new Set())
 
 // article page zoom image
-export const useZoomImage = () => useState<Boolean>('zoomImage', () => false)
+interface ZoomImageType {
+  src: string;
+  alt?: string;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+}
+export const useShowZoomImage = () => useState<'show' | 'hiding' | 'hidden'>('showZoomImage', () => 'hidden')
+export const useZoomImage = () => useState<null | ZoomImageType>('zoomImage', () => null)
