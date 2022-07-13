@@ -24,6 +24,8 @@ const image = ref(null)
 const showZoomImage = useShowZoomImage()
 const zoomImage = useZoomImage()
 
+// click to set zoom image
+// the ligtbox which contains a copy of this image will enlarge as large as possible to the page center
 const clickHandler = () => {
   if (image.value) {
     const imageRect = image.value.getBoundingClientRect()

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const showZoomImage = useShowZoomImage()
 const zoomImage = useZoomImage()
-
+const showBlurBg = ref(false)
 // stop body scroll
 watch(showZoomImage, () => {
   if (showZoomImage.value !== 'hidden' && document.body) {
@@ -19,16 +19,13 @@ const height = ref(0)
 const scale = ref(1)
 let translateX = 0
 let translateY = 0
-const screenScale = 1
-const screenTranslateX = 0
-const screenTranslateY = 0
 const transformValue = ref('translate(0px, 0px) scale(1)')
 
 const resetTransform = (type = 'origin') => {
   if (type === 'screen') {
-    scale.value = screenScale
-    translateX = screenTranslateX
-    translateY = screenTranslateY
+    scale.value = 1
+    translateX = 0
+    translateY = 0
   } else {
     width.value = 0
     height.value = 0
@@ -42,6 +39,7 @@ const resetTransform = (type = 'origin') => {
 /**
  *
  * show or hide transition
+ * refer to https://github.dev/mvoloskov/fast-image-zoom
  *
  */
 // toggle image class name
@@ -108,12 +106,14 @@ const onAfterEnter = () => {
 
 const transitionEndHandler = () => {
   if (showZoomImage.value === 'show') {
+    showBlurBg.value = true
     toggleImageClassName('remove')
   }
 }
 
 const onBeforeLeave = () => {
   toggleImageClassName('add')
+  showBlurBg.value = false
 }
 
 const onLeave = () => {
@@ -130,176 +130,154 @@ const onAfterLeave = () => {
 }
 
 const showBtns = ref(false)
-// click to zoom as large as possible to the page center
-// refer to https://github.dev/mvoloskov/fast-image-zoom
+
 const clickHandler = (state) => {
-  // if (state && zoomImage.value) {
-  //   console.log(zoomImage.value.src)
-
-  //     const windowWidth = document.documentElement.clientWidth
-  //     const windowHeight = document.documentElement.clientHeight
-
-  //     const pageCenterX = windowWidth / 2
-  //     const pageCenterY = windowHeight / 2
-
-  //     const imageRect = image.value.getBoundingClientRect()
-
-  //     const widthScale = windowWidth / imageRect.width
-  //     const heightScale = windowHeight / imageRect.height
-
-  //     const widthScaleSafe = widthScale * imageRect.height <= windowHeight
-
-  //     // set init scale.value
-  //     if (widthScaleSafe) {
-  //       scale.value = widthScale
-  //     } else {
-  //       scale.value = heightScale
-  //     }
-
-  //     screenScale = scale.value
-
-  //     translateX = (pageCenterX - (imageRect.x + imageRect.width / 2))
-  //     translateY = (pageCenterY - (imageRect.y + imageRect.height / 2))
-
-  //     screenTranslateX = translateX
-  //     screenTranslateY = translateY
-
-  //     transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
-
-  //     zoom.value = true
-  // }
-
   if (state && zoomImage.value) {
+    // show or hide the control buttons
     showBtns.value = !showBtns.value
   } else {
+    // begin hiding the image
     showZoomImage.value = 'hiding'
-    // resetTransform()
-    // showZoomImage.value = false
   }
 }
 
-// // scroll the wheel to zoom on the mouse point
-// // refer to https://stackoverflow.com/a/70251437/10699431
-// const dScale = 0.4
-// const scrollToZoomHandler = (event) => {
-//   // zoom the image if scroll
-//   if (zoom.value) {
-//     event.stopPropagation()
-//     event.preventDefault()
-//     const delta = (event.wheelDelta ? event.wheelDelta : -event.deltaY)
+// scroll mouse to zoom
+// listening the wheel event set the scale transform to zoom the image
+// (the transform origin is center as default, so it need to set the x and y translate at the same time to compensate offset by the zoom effect) make the zoom center point is the same as mouse point
+// base on wheel event so it support mouse scroll or pinch in trackpad
+// refer to https://stackoverflow.com/a/70251437/10699431
+const miniScale = 0.2
+const maxScale = 10
+const scrollToZoomHandler = (event) => {
+  if (showZoomImage.value === 'show' && zoomImage.value) {
+    event.stopPropagation()
+    event.preventDefault()
+    const delta = (event.wheelDelta ? event.wheelDelta : -event.deltaY)
 
-//     // zoom the image
-//     const currentScale = delta > 0 ? (scale.value + dScale) : (scale.value - dScale)
+    // pinch in the trackpad is imitate the wheel event
+    // but the Ctrl key will be always true
+    console.log(event)
+    const dScale = event.ctrlKey ? 0.05 : 0.2
 
-//     if (currentScale < 0.6 || currentScale > 10) { return }
+    // zoom the image
+    const currentScale = delta > 0 ? (scale.value + dScale) : (scale.value - dScale)
 
-//     scale.value = currentScale
+    if (currentScale < miniScale || currentScale > maxScale) { return }
 
-//     // get the mouse position relative to image (left-top as reference point, divide scale.value value to calculate the origin offset distance)
-//     const mouseRelativeX = event.offsetX
-//     const mouseRelativeY = event.offsetY
+    scale.value = currentScale
 
-//     // adjust the translate (on the opposite direction) to compensate the offset when scale.value to imitate scale.value origin as the mouse point
-//     const coefficient = delta > 0 ? dScale : -dScale
+    // get the mouse position relative to image (left-top as reference point)
+    const mouseRelativeX = event.offsetX
+    const mouseRelativeY = event.offsetY
 
-//     translateX += (-mouseRelativeX * coefficient) + (image.value.clientWidth * coefficient / 2)
-//     translateY += (-mouseRelativeY * coefficient) + (image.value.clientHeight * coefficient / 2)
+    console.log(mouseRelativeX, event.clientX - image.value.getBoundingClientRect().x)
 
-//     transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
-//   }
-// }
+    // adjust the x and y translate (on the opposite direction) to compensate the offset when scale to imitate scale origin as the mouse point
+    const coefficient = delta > 0 ? dScale : -dScale
 
-// let pointerA = null
-// let pointerB = null
-// let prevDistance = 0
+    translateX += (-mouseRelativeX * coefficient) + (image.value.clientWidth * coefficient / 2)
+    translateY += (-mouseRelativeY * coefficient) + (image.value.clientHeight * coefficient / 2)
 
-// const getDistance = (a, b) => {
-//   return Math.sqrt((b.clientX - a.clientX) ** 2 + (b.clientY - a.clientY) ** 2)
-// }
+    transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
+  }
+}
 
-// const pointerDownHandler = (event) => {
-//   if (!zoom.value) { return }
+/**
+ *
+ * pinch to zoom
+ * listening the pointer event
+ *
+ */
+let startPointerA = null
+let startPointerB = null
+let pointerA = null
+let pointerB = null
+let originRelativeX = 0
+let originRelativeY = 0
+let prevDistance = 0
 
-//   // console.log(event)
+const getDistance = (a, b) => {
+  return Math.sqrt((b.clientX - a.clientX) ** 2 + (b.clientY - a.clientY) ** 2)
+}
 
-//   if (!pointerA) {
-//     pointerA = event
-//   } else if (!pointerB) {
-//     pointerB = event
-//   }
+const pointerDownHandler = (event) => {
+  if (!showZoomImage.value) { return }
 
-//   if (pointerA && pointerB) {
-//     prevDistance = getDistance(pointerA, pointerB)
-//     console.log(prevDistance)
-//   }
-// }
+  if (!pointerA) {
+    startPointerA = event
+    pointerA = startPointerA
+  } else if (!pointerB) {
+    startPointerB = event
+    pointerB = startPointerB
+  }
 
-// const pointerMoveHandler = (event) => {
-//   // console.log(event)
-//   if (zoom.value && pointerA && pointerB) {
-//     event.preventDefault()
+  if (pointerA && pointerB) {
+    // calculate the distance as reference value before the move event
+    prevDistance = getDistance(pointerA, pointerB)
 
-//     const originX = (pointerA.clientX + pointerB.clientX) / 2
-//     const originY = (pointerA.clientY + pointerB.clientY) / 2
+    // get the pinch center of this two pointer relative to image
+    originRelativeX = (startPointerA.offsetX + startPointerB.offsetX) / 2
+    originRelativeY = (startPointerA.offsetY + startPointerB.offsetY) / 2
+  }
+}
 
-//     const imageRect = image.value.getBoundingClientRect()
+const pointerMoveHandler = (event) => {
+  if (showZoomImage.value && pointerA && pointerB) {
+    event.preventDefault()
 
-//     const originRelativeX = originX - imageRect.x
-//     const originRelativeY = originY - imageRect.y
+    // use current event to update the pointer
+    if (event.pointerId === pointerA.pointerId) {
+      pointerA = event
+    } else if (event.pointerId === pointerB.pointerId) {
+      pointerB = event
+    }
 
-//     if (event.pointerId === pointerA.pointerId) {
-//       pointerA = event
-//     } else if (event.pointerId === pointerB.pointerId) {
-//       pointerB = event
-//     }
+    // calculate the two points current distance in this move event
+    const currentDistance = getDistance(pointerA, pointerB)
 
-//     const currentDistance = getDistance(pointerA, pointerB)
+    // pinch in the touch screen
+    const divisor = 100
 
-//     const divisor = event.ctrlKey ? 100 : 300
+    const distanceDiff = (currentDistance - prevDistance) / divisor
+    // console.log(distanceDiff)
 
-//     const distanceDiff = (currentDistance - prevDistance) / divisor
-//     console.log(distanceDiff)
+    const currentScale = scale.value + distanceDiff
+    if (currentScale < miniScale || currentScale > maxScale) { return }
 
-//     const currentScale = scale.value + distanceDiff
-//     if (currentScale < 0.6 || currentScale > 10) { return }
+    scale.value = currentScale
 
-//     scale.value = currentScale
+    // adjust the x and y translate (on the opposite direction) to compensate the offset when scale to imitate scale origin as the mouse point
+    translateX += (-originRelativeX * distanceDiff) + (image.value.clientWidth * distanceDiff / 2)
+    translateY += (-originRelativeY * distanceDiff) + (image.value.clientHeight * distanceDiff / 2)
 
-//     translateX += (-originRelativeX * distanceDiff) + (image.value.clientWidth * distanceDiff / 2)
-//     translateY += (-originRelativeY * distanceDiff) + (image.value.clientHeight * distanceDiff / 2)
+    // update the previous distance as reference value for next move event
+    prevDistance = currentDistance
 
-//     prevDistance = currentDistance
+    transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
+  }
+}
 
-//     transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
-//   }
-// }
+const pointerCancelHandler = (event) => {
+  if (pointerA && event.pointerId === pointerA.pointerId) {
+    pointerA = null
+  } else if (pointerB && event.pointerId === pointerB.pointerId) {
+    pointerB = null
+  }
 
-// const pointerCancelHandler = (event) => {
-//   if (pointerA && event.pointerId === pointerA.pointerId) {
-//     pointerA = null
-//   } else if (pointerB && event.pointerId === pointerB.pointerId) {
-//     pointerB = null
-//   }
-
-//   if (!pointerA || !pointerB) {
-//     prevDistance = 0
-//   }
-// }
-
-// const removeClass = () => {
-//   if (showZoomImage.value && image.value) {
-//     image.value.classList.remove('transition-transform')
-//     image.value.classList.remove('duration-1000')
-//     image.value.classList.remove('ease-in-out')
-//   }
-// }
+  if (!pointerA || !pointerB) {
+    // reset the previous distance as reference value for next move event
+    prevDistance = 0
+    originRelativeX = 0
+    originRelativeY = 0
+  }
+}
 </script>
 
 <template>
   <div
     v-show="showZoomImage !== 'hidden'"
-    class="w-screen h-screen fixed inset-0 z-[999] flex justify-center items-center bg-white/30 backdrop-blur-sm cursor-zoom-out"
-    :class="showZoomImage !== 'hidden' ? 'touch-none' : ''"
+    class="w-screen h-screen fixed inset-0 z-[999] flex justify-center items-center cursor-zoom-out"
+    :class="(showZoomImage !== 'hidden' && showBlurBg) ? 'touch-none bg-white/30 backdrop-blur-sm' : ''"
     @click="clickHandler(false)"
   >
     <Transition
@@ -312,12 +290,18 @@ const clickHandler = (state) => {
       <img
         v-show="showZoomImage === 'show' && zoomImage"
         ref="image"
-        class="mx-auto border border-red-400 cursor-move"
+        class="mx-auto border border-red-400 cursor-move touch-none"
         :src="zoomImage ? zoomImage.src : ''"
         :alt="zoomImage ? zoomImage.alt : ''"
         :style="`width: ${width}px; height: ${height}px; transform: ${transformValue}`"
-        @click.stop.prevent="clickHandler(true)"
         @transitionend="transitionEndHandler"
+        @dblclick="resetTransform('screen')"
+        @click.stop.prevent="clickHandler(true)"
+        @wheel="scrollToZoomHandler"
+        @pointerdown="pointerDownHandler"
+        @pointermove="pointerMoveHandler"
+        @pointercancel="pointerCancelHandler"
+        @pointerup="pointerCancelHandler"
       >
     </Transition>
 
@@ -332,7 +316,7 @@ const clickHandler = (state) => {
       <button
         v-show="showBtns"
         class="h-fit px-4 sm:px-2 py-2 flex justify-center items-center bg-purple-100 text-xs text-purple-400 hover:text-purple-500 active:text-white
-        active:bg-purple-500 border border-purple-500 fixed bottom-4 sm:top-4 left-4 z-[1000] rounded"
+        active:bg-purple-500 border border-purple-500 fixed top-4 left-4 z-[1000] rounded"
         @click.stop.prevent="resetTransform('screen')"
       >
         {{ Math.round(scale * 100) }}%
@@ -349,7 +333,7 @@ const clickHandler = (state) => {
       <button
         v-show="showBtns"
         class="h-fit px-4 sm:px-2 py-2 flex justify-center items-center gap-1 bg-red-100 text-xs text-red-400 hover:text-red-500 active:text-white
-        active:bg-red-500 border border-red-500 fixed bottom-4 sm:top-4 right-4 z-[1000] rounded"
+        active:bg-red-500 border border-red-500 fixed top-4 right-4 z-[1000] rounded"
         @click.stop.prevent="clickHandler(false)"
       >
         <span>Esc</span>
