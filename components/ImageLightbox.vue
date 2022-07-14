@@ -16,6 +16,7 @@ const image = ref(null)
 
 const width = ref(0)
 const height = ref(0)
+const opacity = ref(1)
 const scale = ref(1)
 let translateX = 0
 let translateY = 0
@@ -29,6 +30,7 @@ const resetTransform = (type = 'screen') => {
     height.value = 0
   }
 
+  opacity.value = 1
   scale.value = 1
   translateX = 0
   translateY = 0
@@ -228,7 +230,8 @@ const pointerDownHandler = (event) => {
 }
 
 const pointerMoveHandler = (event) => {
-  if (showZoomImage.value && pointerA && pointerB) {
+  if (!showZoomImage.value) { return }
+  if (pointerA && pointerB) {
     event.preventDefault()
 
     // use current event to update the pointer
@@ -259,26 +262,46 @@ const pointerMoveHandler = (event) => {
     prevDistance = currentDistance
 
     transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
-  } else if (showZoomImage.value && (pointerA || pointerB)) {
-    if (scale.value !== 1) {
-      let prevPointer
-      if (pointerA && event.pointerId === pointerA.pointerId) {
-        prevPointer = startPointerA
-        pointerA = event
-      } else if (pointerB && event.pointerId === pointerB.pointerId) {
-        prevPointer = startPointerB
-        pointerB = event
+  } else if (pointerA || pointerB) {
+    let prevPointer
+    if (pointerA && event.pointerId === pointerA.pointerId) {
+      prevPointer = startPointerA
+      pointerA = event
+    } else if (pointerB && event.pointerId === pointerB.pointerId) {
+      prevPointer = startPointerB
+      pointerB = event
+    }
+
+    translateX = translateStartPointX + (event.clientX - prevPointer.clientX)
+    translateY = translateStartPointY + (event.clientY - prevPointer.clientY)
+
+    transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
+
+    // some style change when swipe up/down from transform init (scale = 1 translate x and y = 0) state to hidden lightbox
+    if (scale.value === 1 && translateStartPointX === 0 && translateStartPointY === 0) {
+      const imageRect = image.value.getBoundingClientRect()
+      const threshold = Math.abs(translateY) - imageRect.height / 4
+      if (threshold > 0) {
+        opacity.value = 1 - threshold / imageRect.height < 0.2 ? 0.2 : 1 - threshold / imageRect.height
+      } else {
+        opacity.value = 1
       }
-
-      translateX = translateStartPointX + (event.clientX - prevPointer.clientX)
-      translateY = translateStartPointY + (event.clientY - prevPointer.clientY)
-
-      transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
     }
   }
 }
 
 const pointerCancelHandler = (event) => {
+  // swipe up/down from transform init state (scale = 1 translate x and y = 0)  to hidden lightbox
+  if (scale.value === 1 && translateStartPointX === 0 && translateStartPointY === 0) {
+    const imageRect = image.value.getBoundingClientRect()
+    // if the swipe up/down distance is larger than image height/3
+    if (Math.abs(translateY) > imageRect.height / 4) {
+      clickHandler(false)
+    } else {
+      opacity.value = 1
+    }
+  }
+
   if (pointerA && event.pointerId === pointerA.pointerId) {
     pointerA = null
     startPointerA = null
@@ -319,7 +342,7 @@ const pointerCancelHandler = (event) => {
         class="mx-auto border border-red-400 will-change-transform cursor-move touch-none"
         :src="zoomImage ? zoomImage.src : ''"
         :alt="zoomImage ? zoomImage.alt : ''"
-        :style="`width: ${width}px; height: ${height}px; transform: ${transformValue}`"
+        :style="`width: ${width}px; height: ${height}px; opacity: ${opacity};transform: ${transformValue}`"
         draggable="false"
         @transitionend="transitionEndHandler"
         @dblclick="resetTransform('screen')"
