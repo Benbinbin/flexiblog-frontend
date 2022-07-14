@@ -19,20 +19,21 @@ const height = ref(0)
 const scale = ref(1)
 let translateX = 0
 let translateY = 0
+let translateStartPointX = 0
+let translateStartPointY = 0
 const transformValue = ref('translate(0px, 0px) scale(1)')
 
-const resetTransform = (type = 'origin') => {
-  if (type === 'screen') {
-    scale.value = 1
-    translateX = 0
-    translateY = 0
-  } else {
+const resetTransform = (type = 'screen') => {
+  if (type === 'origin') {
     width.value = 0
     height.value = 0
-    scale.value = 1
-    translateX = 0
-    translateY = 0
   }
+
+  scale.value = 1
+  translateX = 0
+  translateY = 0
+  translateStartPointX = 0
+  translateStartPointY = 0
   transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
 }
 
@@ -125,8 +126,13 @@ const onAfterLeave = () => {
 
   zoomImage.value = null
   showZoomImage.value = 'hidden'
-  resetTransform()
+  resetTransform('origin')
   showBtns.value = false
+  // clean pointers when zoom image hidden for some weird case
+  pointerA = null
+  pointerB = null
+  startPointerA = null
+  startPointerB = null
 }
 
 const showBtns = ref(false)
@@ -156,7 +162,6 @@ const scrollToZoomHandler = (event) => {
 
     // pinch in the trackpad is imitate the wheel event
     // but the Ctrl key will be always true
-    console.log(event)
     const dScale = event.ctrlKey ? 0.05 : 0.2
 
     // zoom the image
@@ -170,8 +175,6 @@ const scrollToZoomHandler = (event) => {
     const mouseRelativeX = event.offsetX
     const mouseRelativeY = event.offsetY
 
-    console.log(mouseRelativeX, event.clientX - image.value.getBoundingClientRect().x)
-
     // adjust the x and y translate (on the opposite direction) to compensate the offset when scale to imitate scale origin as the mouse point
     const coefficient = delta > 0 ? dScale : -dScale
 
@@ -184,7 +187,7 @@ const scrollToZoomHandler = (event) => {
 
 /**
  *
- * pinch to zoom
+ * pinch to zoom or drag to move
  * listening the pointer event
  *
  */
@@ -219,6 +222,9 @@ const pointerDownHandler = (event) => {
     originRelativeX = (startPointerA.offsetX + startPointerB.offsetX) / 2
     originRelativeY = (startPointerA.offsetY + startPointerB.offsetY) / 2
   }
+
+  translateStartPointX = translateX
+  translateStartPointY = translateY
 }
 
 const pointerMoveHandler = (event) => {
@@ -239,7 +245,6 @@ const pointerMoveHandler = (event) => {
     const divisor = 100
 
     const distanceDiff = (currentDistance - prevDistance) / divisor
-    // console.log(distanceDiff)
 
     const currentScale = scale.value + distanceDiff
     if (currentScale < miniScale || currentScale > maxScale) { return }
@@ -254,15 +259,36 @@ const pointerMoveHandler = (event) => {
     prevDistance = currentDistance
 
     transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
+  } else if (showZoomImage.value && (pointerA || pointerB)) {
+    if (scale.value !== 1) {
+      let prevPointer
+      if (pointerA && event.pointerId === pointerA.pointerId) {
+        prevPointer = startPointerA
+        pointerA = event
+      } else if (pointerB && event.pointerId === pointerB.pointerId) {
+        prevPointer = startPointerB
+        pointerB = event
+      }
+
+      translateX = translateStartPointX + (event.clientX - prevPointer.clientX)
+      translateY = translateStartPointY + (event.clientY - prevPointer.clientY)
+
+      transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
+    }
   }
 }
 
 const pointerCancelHandler = (event) => {
   if (pointerA && event.pointerId === pointerA.pointerId) {
     pointerA = null
+    startPointerA = null
   } else if (pointerB && event.pointerId === pointerB.pointerId) {
     pointerB = null
+    startPointerB = null
   }
+
+  translateStartPointX = translateX
+  translateStartPointY = translateY
 
   if (!pointerA || !pointerB) {
     // reset the previous distance as reference value for next move event
@@ -290,10 +316,11 @@ const pointerCancelHandler = (event) => {
       <img
         v-show="showZoomImage === 'show' && zoomImage"
         ref="image"
-        class="mx-auto border border-red-400 cursor-move touch-none"
+        class="mx-auto border border-red-400 will-change-transform cursor-move touch-none"
         :src="zoomImage ? zoomImage.src : ''"
         :alt="zoomImage ? zoomImage.alt : ''"
         :style="`width: ${width}px; height: ${height}px; transform: ${transformValue}`"
+        draggable="false"
         @transitionend="transitionEndHandler"
         @dblclick="resetTransform('screen')"
         @click.stop.prevent="clickHandler(true)"
