@@ -339,7 +339,7 @@ const pointerCancelHandler = (event) => {
       <img
         v-show="showZoomImage === 'show' && zoomImage"
         ref="image"
-        class="mx-auto border border-red-400 will-change-transform cursor-move touch-none"
+        class="mx-auto will-change-transform cursor-move touch-none"
         :src="zoomImage ? zoomImage.src : ''"
         :alt="zoomImage ? zoomImage.alt : ''"
         :style="`width: ${width}px; height: ${height}px; opacity: ${opacity};transform: ${transformValue}`"

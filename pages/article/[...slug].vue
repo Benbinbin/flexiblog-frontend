@@ -53,15 +53,81 @@ onUnmounted(() => {
  *
  */
 const zoomImageState = useShowZoomImage()
-// const zoomImage = useZoomImage()
 
 onMounted(() => {
   if (document) {
+    // press Esc key to hide lightbox
     document.addEventListener('keyup', function (event) {
       if (event.key === 'Escape') {
         zoomImageState.value = 'hiding'
       }
     })
+  }
+})
+
+/**
+ *
+ * math formula
+ * support double click to copy the formula
+ *
+ */
+const clipboard = ref(null)
+
+const addListener = (list, prefix, suffix) => {
+  list.forEach((element) => {
+    // add event listener for double click
+    element.addEventListener('dblclick', (event) => {
+      const target = event.currentTarget as HTMLElement
+
+      // after click set the math element border color to 'border-purple-400'
+      target.style.borderColor = '#c084fc'
+
+      // get the LaTeX source code of math formula
+      // refer to https://github.com/KaTeX/KaTeX/issues/645
+      const formulaElem = target.querySelector('annotation')
+
+      if (formulaElem && formulaElem.textContent) {
+        // add '$' or '$$' prefix and suffix for inline math or block math
+        const formula = prefix + formulaElem.textContent + suffix
+
+        if (clipboard.value) {
+          // write the formula to clipboard and set the math element border color based on the promise resolve result
+          clipboard.value.writeText(formula).then(() => {
+            target.style.borderColor = '#4ade80'
+            const timer = setTimeout(() => {
+              target.style.borderColor = 'transparent'
+              clearTimeout(timer)
+            }, 800)
+          })
+            .catch(() => {
+              target.style.borderColor = '#f87171'
+
+              const timer = setTimeout(() => {
+                target.style.borderColor = 'transparent'
+                clearTimeout(timer)
+              }, 800)
+            })
+        }
+      } else {
+        target.style.borderColor = '#f87171'
+
+        const timer = setTimeout(() => {
+          target.style.borderColor = 'transparent'
+          clearTimeout(timer)
+        }, 800)
+      }
+    })
+  })
+}
+
+onMounted(() => {
+  clipboard.value = navigator.clipboard
+
+  if (document && clipboard.value) {
+    const mathInlineList = document.querySelectorAll('.math-inline')
+    const mathBlockList = document.querySelectorAll('.math-display')
+    if (mathInlineList.length > 0) { addListener(mathInlineList, '$', '$') }
+    if (mathBlockList.length > 0) { addListener(mathBlockList, '$$\n', '\n$$') }
   }
 })
 </script>
@@ -99,6 +165,7 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
+
 .article-container {
   * {
     @apply selection:bg-purple-400 selection:text-white
@@ -214,6 +281,10 @@ onMounted(() => {
 
   code {
     @apply px-1 py-0.5 mx-0.5 text-sm bg-gray-100 border rounded
+  }
+
+  .math {
+    @apply px-2 py-1 border-2 border-transparent rounded-md select-none transition-colors duration-300
   }
 }
 </style>
