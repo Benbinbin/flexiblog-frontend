@@ -123,9 +123,10 @@ const addListener = (list, prefix, suffix) => {
 onMounted(() => {
   clipboard.value = navigator.clipboard
 
-  if (document && clipboard.value) {
-    const mathInlineList = document.querySelectorAll('.math-inline')
-    const mathBlockList = document.querySelectorAll('.math-display')
+  if (articleContainer.value && clipboard.value) {
+    const mathInlineList = articleContainer.value.querySelectorAll('.math-inline')
+    const mathBlockList = articleContainer.value.querySelectorAll('.math-display')
+
     if (mathInlineList.length > 0) { addListener(mathInlineList, '$', '$') }
     if (mathBlockList.length > 0) { addListener(mathBlockList, '$$\n', '\n$$') }
   }
@@ -165,7 +166,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-
 .article-container {
   * {
     @apply selection:bg-purple-400 selection:text-white

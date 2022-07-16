@@ -43,17 +43,15 @@ const clickHandler = () => {
 </script>
 
 <template>
-  <div>
-    <img
-      ref="image"
-      class="mx-auto my-4"
-      :src="props.src"
-      :alt="props.alt"
-      :width="props.width"
-      :height="props.height"
-      @click="clickHandler"
-    >
-  </div>
+  <img
+    ref="image"
+    class="mx-auto"
+    :src="props.src"
+    :alt="props.alt"
+    :width="props.width"
+    :height="props.height"
+    @dblclick="clickHandler"
+  >
 </template>
 
 <style lang="scss" scoped>
