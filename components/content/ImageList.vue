@@ -13,87 +13,206 @@ const scrollPos = ref<'start' | 'middle' | 'end'>('start')
 const showImg = ref(1)
 const imgLength = ref(0)
 
+const showSidebar = ref(false)
+const sidebarImgList = ref([])
+
 onMounted(() => {
   if (imgContainer.value) {
     const imgList = imgContainer.value.querySelectorAll('img')
     imgLength.value = imgList.length
+    if (imgLength.value > 0) {
+      imgList.forEach((item) => {
+        sidebarImgList.value.push({
+          src: item.src,
+          alt: item.alt
+        })
+      })
+    }
   }
 })
 
-const scrollHandler = (pos) => {
+const onAfterEnterLeft = (el) => {
+  el.classList.add('-translate-x-full')
+}
+
+const onAfterEnterBottom = (el) => {
+  el.classList.add('translate-y-full')
+}
+
+const scrollTopHandler = (pos) => {
   if (!imgContainer.value) { return }
   if (pos === 'start') {
     imgContainer.value.scrollTop = 0
   } else if (pos === 'end') {
-    imgContainer.value.scrollTop = imgContainer.value.scrollHeight - imgContainer.value.offsetHeight
+    imgContainer.value.scrollTop = imgContainer.value.scrollHeight - imgContainer.value.clientHeight
+  } else {
+    imgContainer.value.scrollTop = pos * imgContainer.value.clientHeight
   }
 }
+
+const scrollLeftHandler = (pos) => {
+  if (!imgContainer.value) { return }
+  if (pos === 'start') {
+    imgContainer.value.scrollLeft = 0
+  } else if (pos === 'end') {
+    imgContainer.value.scrollLeft = imgContainer.value.scrollWidth - imgContainer.value.clientWidth
+  } else {
+    imgContainer.value.scrollLeft = pos * imgContainer.value.clientWidth
+  }
+}
+
+let scrollTop = 0
+let scrollLeft = 0
 
 const scrollingHandler = () => {
   if (!imgContainer.value) { return }
-  const scrollDistance = imgContainer.value.scrollTop
-  if (scrollDistance === 0) {
-    scrollPos.value = 'start'
-  } else if (scrollDistance + imgContainer.value.offsetHeight >= imgContainer.value.scrollHeight) {
-    scrollPos.value = 'end'
-  } else {
-    scrollPos.value = 'middle'
-  }
 
-  showImg.value = Math.ceil(scrollDistance / parseInt(props.height)) + 1
+  if (imgContainer.value.scrollTop !== scrollTop) {
+    const scrollTopDistance = imgContainer.value.scrollTop
+    scrollTop = imgContainer.value.scrollTop
+
+    if (scrollTopDistance === 0) {
+      scrollPos.value = 'start'
+    } else if (scrollTopDistance + imgContainer.value.clientHeight >= imgContainer.value.scrollHeight) {
+      scrollPos.value = 'end'
+    } else {
+      scrollPos.value = 'middle'
+    }
+
+    showImg.value = Math.ceil(scrollTopDistance / imgContainer.value.clientHeight) + 1
+  } else if (imgContainer.value.scrollLeft !== scrollLeft) {
+    const scrollLeftDistance = imgContainer.value.scrollLeft
+    scrollLeft = imgContainer.value.scrollLeft
+
+    if (scrollLeftDistance === 0) {
+      scrollPos.value = 'start'
+    } else if (scrollLeftDistance + imgContainer.value.clientWidth >= imgContainer.value.scrollWidth) {
+      scrollPos.value = 'end'
+    } else {
+      scrollPos.value = 'middle'
+    }
+
+    showImg.value = Math.round(scrollLeftDistance / imgContainer.value.clientWidth) + 1
+  }
 }
 
-const showSidebar = ref(false)
 </script>
 <template>
-  <div class="my-4 border border-gray-200 rounded-lg overflow-hidden">
+  <div class="sm:mx-8 lg:mx-0 relative z-10 my-4 border border-gray-200 rounded-lg">
     <div
-      class="image-list-header p-2 relative z-10 flex justify-between items-center bg-gray-100 shadow-md shadow-gray-200"
+      class="image-list-header p-2 relative z-10 flex justify-between items-center bg-gray-100 rounded-t-lg shadow shadow-gray-200 overflow-hidden"
     >
-      <div class="flex space-x-2 items-center">
+      <div class="shrink-0 flex space-x-2 items-center">
         <button
-          class="btn"
+          class="btn flex"
           :class="showSidebar ? 'text-white bg-purple-500 hover:bg-purple-400' : 'bg-purple-100 text-purple-400 hover:text-purple-500'"
           @click="showSidebar = !showSidebar"
         >
-          <IconCustom name="bi:layout-sidebar" class="w-4 h-4" />
+          <IconCustom name="bi:layout-sidebar" class="w-4 h-4 -rotate-90 sm:rotate-0" />
         </button>
-        <span class="text-xs">{{ showImg }}/{{ imgLength }}</span>
+        <span class="text-center text-xs text-gray-400">
+          {{ showImg }}/{{ imgLength }}
+        </span>
       </div>
 
-      <div class="flex space-x-2 items-center">
+      <div class="shrink-0 flex space-x-2 items-center">
         <button
-          :disabled="scrollPos==='start'"
-          class="btn bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500"
-          :class="scrollPos==='start' ? 'opacity-30' : ''"
-          @click="scrollHandler('start')"
+          :disabled="scrollPos === 'start'"
+          class="btn hidden sm:flex bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500"
+          :class="scrollPos === 'start' ? 'opacity-30' : ''"
+          @click="scrollTopHandler('start')"
         >
           <IconCustom name="material-symbols:vertical-align-top-rounded" class="w-4 h-4" />
         </button>
         <button
-          :disabled="scrollPos==='end'"
-          class="btn bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500"
-          :class="scrollPos==='end' ? 'opacity-30' : ''"
-          @click="scrollHandler('end')"
+          :disabled="scrollPos === 'end'"
+          class="btn hidden sm:flex bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500"
+          :class="scrollPos === 'end' ? 'opacity-30' : ''"
+          @click="scrollTopHandler('end')"
         >
           <IconCustom name="material-symbols:vertical-align-bottom-rounded" class="w-4 h-4" />
+        </button>
+
+        <button
+          :disabled="scrollPos === 'start'"
+          class="btn flex sm:hidden bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500"
+          :class="scrollPos === 'start' ? 'opacity-30' : ''"
+          @click="scrollLeftHandler('start')"
+        >
+          <IconCustom name="material-symbols:vertical-align-bottom-rounded" class="w-4 h-4 rotate-90" />
+        </button>
+        <button
+          :disabled="scrollPos === 'end'"
+          class="btn flex sm:hidden bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500"
+          :class="scrollPos === 'end' ? 'opacity-30' : ''"
+          @click="scrollLeftHandler('end')"
+        >
+          <IconCustom name="material-symbols:vertical-align-top-rounded" class="w-4 h-4 rotate-90" />
         </button>
       </div>
     </div>
     <div
       ref="imgContainer"
-      class="image-list-container overflow-y-auto snap-mandatory snap-both"
+      class="image-list-container flex sm:flex-col bg-gray-50 rounded-b-lg overflow-auto snap-mandatory snap-both"
       :style="`height: ${props.height}`"
       @scroll.passive="scrollingHandler"
     >
       <div
         v-for="(item, index) of flatUnwrap($slots.default(), ['p'])"
         :key="index"
-        class="w-full h-full flex justify-center items-center"
+        class="shrink-0 w-full h-full flex justify-center items-center"
       >
         <Markdown :use="() => item" />
       </div>
     </div>
+    <Transition
+      enter-from-class="translate-x-0"
+      enter-active-class="transition-transform duration-200 ease-in"
+      enter-to-class="-translate-x-full"
+      leave-from-class="-translate-x-full"
+      leave-active-class="transition-transform duration-75 ease-out"
+      leave-to-class="translate-x-0"
+      @after-enter="onAfterEnterLeft"
+    >
+      <div
+        v-show="sidebarImgList.length > 0 && showSidebar"
+        class="sidebar-image-list p-2 absolute left-0 inset-y-0 -z-10 hidden sm:flex flex-col space-y-2 bg-gray-100 rounded-lg border border-gray-200 overflow-y-auto overscroll-y-none"
+      >
+        <button
+          v-for="(item, index) in sidebarImgList"
+          :key="index"
+          class="shrink-0 w-12 h-12 ring rounded overflow-hidden"
+          :class="showImg - 1 === index ? 'ring-purple-400' : 'ring-transparent'"
+          @click="scrollTopHandler(index)"
+        >
+          <img :src="item.src" :alt="item.alt" class="mx-auto max-h-full">
+        </button>
+      </div>
+    </Transition>
+    <Transition
+      enter-from-class="translate-y-0"
+      enter-active-class="transition-transform duration-200 ease-in"
+      enter-to-class="translate-y-full"
+      leave-from-class="translate-y-full"
+      leave-active-class="transition-transform duration-75 ease-out"
+      leave-to-class="translate-y-0"
+      @after-enter="onAfterEnterBottom"
+    >
+      <div
+        v-show="sidebarImgList.length > 0 && showSidebar"
+        class="sidebar-image-list p-2 absolute inset-x-0 bottom-0 -z-10 flex sm:hidden space-x-2 bg-gray-100 rounded-lg border border-gray-200 overflow-x-auto"
+      >
+        <button
+          v-for="(item, index) in sidebarImgList"
+          :key="index"
+          class="shrink-0 w-12 h-12 ring rounded overflow-hidden"
+          :class="showImg - 1 === index ? 'ring-purple-400' : 'ring-transparent'"
+          @click="scrollLeftHandler(index)"
+        >
+          <img :src="item.src" :alt="item.alt" class="mx-auto max-h-full">
+        </button>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -101,8 +220,9 @@ const showSidebar = ref(false)
 
 .image-list-container {
   &::-webkit-scrollbar {
-      display: none;
-    }
+    display: none;
+  }
+
   @apply scroll-smooth;
 
   img {
@@ -112,8 +232,11 @@ const showSidebar = ref(false)
 
 .image-list-header {
   .btn {
-    @apply p-1.5 flex justify-center items-center rounded transition-colors duration-300;
+    @apply p-1.5 justify-center items-center rounded transition-colors duration-300;
   }
 }
 
+.sidebar-image-list::-webkit-scrollbar {
+  display: none;
+}
 </style>
