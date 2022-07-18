@@ -3,8 +3,6 @@ import type { NavItem, QueryBuilderParams } from '@nuxt/content/dist/runtime/typ
 
 const { data: navData } = await useAsyncData('navigation', () => fetchContentNavigation())
 
-// console.log(navData)
-
 let articleFolder
 
 if (Array.isArray(navData.value) && navData.value.findIndex(item => item.title === 'Article') !== -1) {
@@ -40,24 +38,21 @@ watch(showSeriesModal, () => {
   }
 })
 
+const indexKeyListener = function (event) {
+  if (event.key === 'Escape') {
+    setSeriesModal('')
+  }
+}
+
 onMounted(() => {
   if (document) {
-    document.addEventListener('keyup', function (event) {
-      if (event.key === 'Escape') {
-        setSeriesModal('')
-      }
-    })
+    document.addEventListener('keyup', indexKeyListener)
   }
 })
 
-// const pressEsc = useEsc()
-
-// watch(pressEsc, () => {
-//   if (pressEsc.value) {
-//     setSeriesModal('')
-//     pressEsc.value = false
-//   }
-// })
+onUnmounted(() => {
+  document.removeEventListener('keyup', indexKeyListener)
+})
 </script>
 
 <template>

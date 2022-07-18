@@ -8,10 +8,6 @@ const props = defineProps({
   }
 })
 
-// const slotList = flatUnwrap(useSlots().default(), ['p'])
-
-// console.log(slotList)
-
 const imgContainer = ref(null)
 const scrollPos = ref<'start' | 'middle' | 'end'>('start')
 const showImg = ref(1)
@@ -26,12 +22,9 @@ onMounted(() => {
     imgLength.value = imgList.length
     if (imgLength.value > 0) {
       imgList.forEach((item) => {
-        const imgRect = item.getBoundingClientRect()
         sidebarImgList.value.push({
           src: item.src,
-          alt: item.alt,
-          width: imgRect.width,
-          height: imgRect.height
+          alt: item.alt
         })
       })
     }
@@ -109,6 +102,7 @@ const scrollingHandler = () => {
 const showZoomImage = useShowZoomImage()
 const zoomImage = useZoomImage()
 const zoomImageList = useZoomImageList()
+const currentZoomImage = useCurrentZoomImage()
 const doubleClickHandler = (event) => {
   if (event.target) {
     const imageRect = event.target.getBoundingClientRect()
@@ -120,13 +114,30 @@ const doubleClickHandler = (event) => {
       y: imageRect.y
     }
 
-    zoomImageList.value = sidebarImgList.value
+    currentZoomImage.value = zoomImage.value
+
+    if (imgLength.value > 0) {
+      const imgList = imgContainer.value.querySelectorAll('img')
+
+      imgList.forEach((item) => {
+        const imgRect = item.getBoundingClientRect()
+        zoomImageList.value.push({
+          src: item.src,
+          alt: item.alt,
+          width: imgRect.width,
+          height: imgRect.height,
+          x: imgRect.x,
+          y: imgRect.y
+        })
+      })
+    }
+
     showZoomImage.value = 'show'
   }
 }
 </script>
 <template>
-  <div class="sm:mx-8 lg:mx-0 relative z-10 my-4 border border-gray-200 rounded-lg">
+  <div class="sm:mx-8 lg:mx-0 mt-4 mb-20 sm:mb-4 relative z-10 border border-gray-200 rounded-lg">
     <div
       class="image-list-header p-2 relative z-10 flex justify-between items-center bg-gray-100 rounded-t-lg shadow shadow-gray-200 overflow-hidden"
     >
@@ -143,7 +154,7 @@ const doubleClickHandler = (event) => {
         </span>
       </div>
 
-      <div class="shrink-0 flex space-x-2 items-center">
+      <div v-show="sidebarImgList.length > 1" class="shrink-0 flex space-x-2 items-center">
         <button
           :disabled="scrollPos === 'start'"
           class="btn hidden sm:flex bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500"

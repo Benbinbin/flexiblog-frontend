@@ -49,24 +49,6 @@ onUnmounted(() => {
 
 /**
  *
- * zoom image
- *
- */
-const zoomImageState = useShowZoomImage()
-
-onMounted(() => {
-  if (document) {
-    // press Esc key to hide lightbox
-    document.addEventListener('keyup', function (event) {
-      if (event.key === 'Escape') {
-        zoomImageState.value = 'hiding'
-      }
-    })
-  }
-})
-
-/**
- *
  * math formula
  * support double click to copy the formula
  *

@@ -23,6 +23,7 @@ const image = ref(null)
 
 const showZoomImage = useShowZoomImage()
 const zoomImage = useZoomImage()
+const currentZoomImage = useCurrentZoomImage()
 
 // click to set zoom image
 // the ligtbox which contains a copy of this image will enlarge as large as possible to the page center
@@ -36,6 +37,8 @@ const doubleClickHandler = () => {
       x: imageRect.x,
       y: imageRect.y
     }
+
+    currentZoomImage.value = zoomImage.value
     showZoomImage.value = 'show'
   }
 }

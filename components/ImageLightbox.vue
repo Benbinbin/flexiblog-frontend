@@ -1,8 +1,61 @@
 <script setup lang="ts">
 const showZoomImage = useShowZoomImage()
 const zoomImage = useZoomImage()
+const currentZoomImg = useCurrentZoomImage()
 const zoomImageList = useZoomImageList()
 const showBlurBg = ref(false)
+
+/**
+ *
+ * zoom image
+ *
+ */
+const zoomImageState = useShowZoomImage()
+
+const changeCurrentZoomImage = (target) => {
+  if (zoomImageList.value.length === 0) { return }
+  const index = zoomImageList.value.findIndex((item) => {
+    return item.src === currentZoomImg.value.src
+  })
+  if (index === -1) { return }
+
+  if (target === 'prev') {
+    if (index === 0) {
+      currentZoomImg.value = zoomImageList.value[zoomImageList.value.length - 1]
+    } else {
+      currentZoomImg.value = zoomImageList.value[index - 1]
+    }
+  } else if (target === 'next') {
+    if (index === zoomImageList.value.length - 1) {
+      currentZoomImg.value = zoomImageList.value[0]
+    } else {
+      currentZoomImg.value = zoomImageList.value[index + 1]
+    }
+  }
+}
+
+const lightboxKeyListener = function (event) {
+  if (event.key === 'Escape') {
+    // press Esc key to hide lightbox
+    zoomImageState.value = 'hiding'
+  } else if (event.key === 'ArrowLeft') {
+    changeCurrentZoomImage('prev')
+    transformInitial()
+  } else if (event.key === 'ArrowRight') {
+    changeCurrentZoomImage('next')
+    transformInitial()
+  }
+}
+
+onMounted(() => {
+  if (document) {
+    document.addEventListener('keyup', lightboxKeyListener)
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keyup', lightboxKeyListener)
+})
 
 // stop body scroll
 watch(showZoomImage, () => {
@@ -20,6 +73,33 @@ watch(showZoomImage, () => {
  *
  */
 const zoomImageListContainer = ref(null)
+const showScrollBtns = ref(false)
+
+onMounted(() => {
+  if (!zoomImageListContainer.value) { return }
+  if (zoomImageListContainer.value.scrollWidth > zoomImageListContainer.value.offsetWidth) { showScrollBtns.value = true }
+
+  window.addEventListener('resize', () => {
+    if (zoomImageListContainer.value.scrollWidth > zoomImageListContainer.value.offsetWidth) {
+      showScrollBtns.value = true
+    } else {
+      showScrollBtns.value = false
+    }
+  })
+})
+
+const scrollPos = ref<'start' | 'middle' | 'end'>('start')
+const scrollingHandler = () => {
+  if (!zoomImageListContainer.value) { return }
+  if (zoomImageListContainer.value.scrollLeft === 0) {
+    scrollPos.value = 'start'
+  } else if (zoomImageListContainer.value.scrollLeft + zoomImageListContainer.value.offsetWidth >= zoomImageListContainer.value.scrollWidth) {
+    scrollPos.value = 'end'
+  } else {
+    scrollPos.value = 'middle'
+  }
+}
+
 const scrollHandler = (direction) => {
   if (!zoomImageListContainer.value) { return }
   if (direction === 'left') {
@@ -30,9 +110,9 @@ const scrollHandler = (direction) => {
 }
 
 // set current zoom image when click the image list item
-const currentZoomImg = ref(null)
-const setZoomImg = (item) => {
+const setCurrentZoomImg = (item) => {
   currentZoomImg.value = item
+  transformInitial()
 }
 
 const image = ref(null)
@@ -82,20 +162,46 @@ const toggleImageClassName = (action = 'add') => {
   }
 }
 
-// zoomImage init size and position
+// image init size and position before zoom
 const transitionInitial = () => {
-  if (!zoomImage.value || !document?.documentElement) { return }
+  if (!currentZoomImg.value || !document?.documentElement) { return }
 
   // the zoomImage init size
-  width.value = zoomImage.value.width
-  height.value = zoomImage.value.height
+  width.value = currentZoomImg.value.width
+  height.value = currentZoomImg.value.height
 
   // get the translate and scale between current/expect state and zoomImage init position
   translateX = 0
   const windowHeight = document.documentElement.clientHeight
-  translateY = -(windowHeight / 2 - (zoomImage.value.y + zoomImage.value.height / 2))
+  translateY = -(windowHeight / 2 - (currentZoomImg.value.y + currentZoomImg.value.height / 2))
   scale.value = 1
 
+  transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
+}
+
+// zoomImage init size before transform
+const transformInitial = () => {
+  if (currentZoomImg.value && document.documentElement) {
+    const windowWidth = document.documentElement.clientWidth
+    const windowHeight = document.documentElement.clientHeight
+
+    const widthScale = windowWidth / currentZoomImg.value.width
+    const widthScaleSafe = widthScale * currentZoomImg.value.height <= windowHeight
+
+    const currentZoomImgWidthHeightRatio = currentZoomImg.value.width / currentZoomImg.value.height
+
+    if (widthScaleSafe) {
+      width.value = windowWidth
+      height.value = width.value / currentZoomImgWidthHeightRatio
+    } else {
+      height.value = windowHeight
+      width.value = height.value * currentZoomImgWidthHeightRatio
+    }
+  }
+
+  translateX = 0
+  translateY = 0
+  scale.value = 1
   transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
 }
 
@@ -105,28 +211,7 @@ const onBeforeEnter = () => {
 }
 
 const onAfterEnter = () => {
-  if (zoomImage.value && document.documentElement) {
-    const windowWidth = document.documentElement.clientWidth
-    const windowHeight = document.documentElement.clientHeight
-
-    const widthScale = windowWidth / zoomImage.value.width
-    const widthScaleSafe = widthScale * zoomImage.value.height <= windowHeight
-
-    const zoomImageWidthHeightRatio = zoomImage.value.width / zoomImage.value.height
-
-    if (widthScaleSafe) {
-      width.value = windowWidth
-      height.value = width.value / zoomImageWidthHeightRatio
-    } else {
-      height.value = windowHeight
-      width.value = height.value * zoomImageWidthHeightRatio
-    }
-  }
-
-  translateX = 0
-  translateY = 0
-  scale.value = 1
-  transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
+  transformInitial()
   showBtns.value = true
 }
 
@@ -138,7 +223,24 @@ const transitionEndHandler = () => {
 }
 
 const onBeforeLeave = () => {
-  toggleImageClassName('add')
+  if (currentZoomImg.value.src === zoomImage.value.src) {
+    toggleImageClassName('add')
+    currentZoomImg.value = zoomImage.value
+  } else {
+    showZoomImage.value = 'hidden'
+    resetTransform('origin')
+    showBtns.value = false
+
+    zoomImage.value = null
+    currentZoomImg.value = null
+    zoomImageList.value = []
+
+    // clean pointers when zoom image hidden for some weird case
+    pointerA = null
+    pointerB = null
+    startPointerA = null
+    startPointerB = null
+  }
   showBlurBg.value = false
 }
 
@@ -149,10 +251,14 @@ const onLeave = () => {
 const onAfterLeave = () => {
   toggleImageClassName('remove')
 
-  zoomImage.value = null
   showZoomImage.value = 'hidden'
   resetTransform('origin')
   showBtns.value = false
+
+  zoomImage.value = null
+  currentZoomImg.value = null
+  zoomImageList.value = []
+
   // clean pointers when zoom image hidden for some weird case
   pointerA = null
   pointerB = null
@@ -300,28 +406,46 @@ const pointerMoveHandler = (event) => {
 
     transformValue.value = `translate(${translateX}px, ${translateY}px) scale(${scale.value})`
 
-    // some style change when swipe up/down from transform init (scale = 1 translate x and y = 0) state to hidden lightbox
+    // set some style change when swipe from the initial transform state (scale = 1 translate x and y = 0)
     if (scale.value === 1 && translateStartPointX === 0 && translateStartPointY === 0) {
       const imageRect = image.value.getBoundingClientRect()
-      const threshold = Math.abs(translateY) - imageRect.height / 4
-      if (threshold > 0) {
-        opacity.value = 1 - threshold / imageRect.height < 0.2 ? 0.2 : 1 - threshold / imageRect.height
+      if (Math.abs(translateY) > Math.abs(translateX)) {
+        opacity.value = 1 - Math.abs(translateY) / imageRect.height < 0.2 ? 0.2 : 1 - Math.abs(translateY) / imageRect.height
       } else {
-        opacity.value = 1
+        opacity.value = 1 - Math.abs(translateX) / imageRect.width < 0.2 ? 0.2 : 1 - Math.abs(translateX) / imageRect.width
       }
     }
   }
 }
 
 const pointerCancelHandler = (event) => {
-  // swipe up/down from transform init state (scale = 1 translate x and y = 0)  to hidden lightbox
+  // swipe from the initial transform state (scale = 1 translate x and y = 0) can trigger hide lightbox or change zoom image feature
   if (scale.value === 1 && translateStartPointX === 0 && translateStartPointY === 0) {
     const imageRect = image.value.getBoundingClientRect()
-    // if the swipe up/down distance is larger than image height/3
-    if (Math.abs(translateY) > imageRect.height / 4) {
+
+    // swipe up/down to hide lightbox
+    const escapeThreshold = Math.abs(translateY) - imageRect.height / 4
+    if (escapeThreshold > 0) {
       clickHandler(false)
     } else {
       opacity.value = 1
+    }
+
+    // swipe left/right to change zoom image
+    if (zoomImageList.value.length > 1) {
+      const changeImageThreshold = Math.abs(translateX) - imageRect.width / 4
+
+      if (changeImageThreshold > 0) {
+        if (translateX > 0) {
+          changeCurrentZoomImage('prev')
+        } else {
+          changeCurrentZoomImage('next')
+        }
+
+        transformInitial()
+      } else {
+        opacity.value = 1
+      }
     }
   }
 
@@ -360,11 +484,11 @@ const pointerCancelHandler = (event) => {
       @after-leave="onAfterLeave"
     >
       <img
-        v-show="showZoomImage === 'show' && zoomImage"
+        v-show="showZoomImage === 'show' && currentZoomImg"
         ref="image"
         class="mx-auto will-change-transform cursor-move touch-none"
-        :src="zoomImage ? zoomImage.src : ''"
-        :alt="zoomImage ? zoomImage.alt : ''"
+        :src="currentZoomImg ? currentZoomImg.src : ''"
+        :alt="currentZoomImg ? currentZoomImg.alt : ''"
         :style="`width: ${width}px; height: ${height}px; opacity: ${opacity};transform: ${transformValue}`"
         draggable="false"
         @transitionend="transitionEndHandler"
@@ -423,28 +547,40 @@ const pointerCancelHandler = (event) => {
       leave-to-class="translate-y-28 opacity-0"
     >
       <div
-        v-show="showBtns && zoomImageList.length>0"
+        v-show="showBtns && zoomImageList.length > 1"
         class="p-2 fixed bottom-20 sm:bottom-4 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-x-2 bg-gray-100 rounded-lg border border-gray-200"
-        @click.stop.prevent="scrollHandler('left')"
       >
-        <button class="btn">
+        <button
+          v-show="showScrollBtns"
+          :disabled="scrollPos === 'start'"
+          class="btn"
+          :class="scrollPos === 'start' ? 'opacity-30' : ''"
+          @click.stop.prevent="scrollHandler('left')"
+        >
           <IconCustom name="material-symbols:arrow-left-rounded" class="w-6 h-6" />
         </button>
         <div
           ref="zoomImageListContainer"
           class="zoom-image-list max-w-[80vw] p-2 flex items-center gap-x-2  overflow-x-auto overscroll-x-none"
+          @scroll.passive="scrollingHandler"
         >
           <button
             v-for="(item, index) in zoomImageList"
             :key="index"
-            class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 ring-4 rounded overflow-hidden"
+            class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 ring sm:ring-4 focus:outline-none rounded overflow-hidden"
             :class="currentZoomImg && currentZoomImg.src === item.src ? 'ring-purple-400' : 'ring-transparent'"
-            @click.stop.prevent="setZoomImg(item)"
+            @click.stop.prevent="setCurrentZoomImg(item)"
           >
             <img :src="item.src" :alt="item.alt" class="mx-auto max-h-full">
           </button>
         </div>
-        <button class="btn" @click.stop.prevent="scrollHandler('right')">
+        <button
+          v-show="showScrollBtns"
+          :disabled="scrollPos === 'end'"
+          class="btn"
+          :class="scrollPos === 'end' ? 'opacity-30' : ''"
+          @click.stop.prevent="scrollHandler('right')"
+        >
           <IconCustom name="material-symbols:arrow-right-rounded" class="w-6 h-6" />
         </button>
       </div>
