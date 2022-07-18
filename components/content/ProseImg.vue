@@ -26,7 +26,7 @@ const zoomImage = useZoomImage()
 
 // click to set zoom image
 // the ligtbox which contains a copy of this image will enlarge as large as possible to the page center
-const clickHandler = () => {
+const doubleClickHandler = () => {
   if (image.value) {
     const imageRect = image.value.getBoundingClientRect()
     zoomImage.value = {
@@ -50,7 +50,7 @@ const clickHandler = () => {
     :alt="props.alt"
     :width="props.width"
     :height="props.height"
-    @dblclick="clickHandler"
+    @dblclick="doubleClickHandler"
   >
 </template>
 

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 const showZoomImage = useShowZoomImage()
 const zoomImage = useZoomImage()
+const zoomImageList = useZoomImageList()
 const showBlurBg = ref(false)
+
 // stop body scroll
 watch(showZoomImage, () => {
   if (showZoomImage.value !== 'hidden' && document.body) {
@@ -11,6 +13,27 @@ watch(showZoomImage, () => {
     document.body.classList.remove('overflow-hidden')
   }
 })
+
+/**
+ *
+ * image list scroll
+ *
+ */
+const zoomImageListContainer = ref(null)
+const scrollHandler = (direction) => {
+  if (!zoomImageListContainer.value) { return }
+  if (direction === 'left') {
+    zoomImageListContainer.value.scrollLeft -= zoomImageListContainer.value.offsetWidth
+  } else if (direction === 'right') {
+    zoomImageListContainer.value.scrollLeft += zoomImageListContainer.value.offsetWidth
+  }
+}
+
+// set current zoom image when click the image list item
+const currentZoomImg = ref(null)
+const setZoomImg = (item) => {
+  currentZoomImg.value = item
+}
 
 const image = ref(null)
 
@@ -390,9 +413,55 @@ const pointerCancelHandler = (event) => {
         <IconCustom name="ic:round-close" class="w-4 h-4" />
       </button>
     </Transition>
+
+    <Transition
+      enter-from-class="translate-y-28 opacity-0"
+      enter-active-class="transition-all duration-200 ease"
+      enter-to-class="translate-y-0 opacity-100"
+      leave-from-class="translate-y-0 opacity-100"
+      leave-active-class="transition-all duration-75 ease"
+      leave-to-class="translate-y-28 opacity-0"
+    >
+      <div
+        v-show="showBtns && zoomImageList.length>0"
+        class="p-2 fixed bottom-20 sm:bottom-4 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-x-2 bg-gray-100 rounded-lg border border-gray-200"
+        @click.stop.prevent="scrollHandler('left')"
+      >
+        <button class="btn">
+          <IconCustom name="material-symbols:arrow-left-rounded" class="w-6 h-6" />
+        </button>
+        <div
+          ref="zoomImageListContainer"
+          class="zoom-image-list max-w-[80vw] p-2 flex items-center gap-x-2  overflow-x-auto overscroll-x-none"
+        >
+          <button
+            v-for="(item, index) in zoomImageList"
+            :key="index"
+            class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 ring-4 rounded overflow-hidden"
+            :class="currentZoomImg && currentZoomImg.src === item.src ? 'ring-purple-400' : 'ring-transparent'"
+            @click.stop.prevent="setZoomImg(item)"
+          >
+            <img :src="item.src" :alt="item.alt" class="mx-auto max-h-full">
+          </button>
+        </div>
+        <button class="btn" @click.stop.prevent="scrollHandler('right')">
+          <IconCustom name="material-symbols:arrow-right-rounded" class="w-6 h-6" />
+        </button>
+      </div>
+    </Transition>
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+.zoom-image-list {
+  @apply scroll-smooth;
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+ .btn {
+   @apply shrink-0 h-20 hidden sm:flex justify-center items-center bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500 border border-purple-500 rounded;
+ }
 </style>

@@ -8,6 +8,10 @@ const props = defineProps({
   }
 })
 
+// const slotList = flatUnwrap(useSlots().default(), ['p'])
+
+// console.log(slotList)
+
 const imgContainer = ref(null)
 const scrollPos = ref<'start' | 'middle' | 'end'>('start')
 const showImg = ref(1)
@@ -22,9 +26,12 @@ onMounted(() => {
     imgLength.value = imgList.length
     if (imgLength.value > 0) {
       imgList.forEach((item) => {
+        const imgRect = item.getBoundingClientRect()
         sidebarImgList.value.push({
           src: item.src,
-          alt: item.alt
+          alt: item.alt,
+          width: imgRect.width,
+          height: imgRect.height
         })
       })
     }
@@ -96,6 +103,27 @@ const scrollingHandler = () => {
   }
 }
 
+// click to set zoom image
+// the ligtbox which contains a copy of this image will enlarge as large as possible to the page center
+// also set the a list image to select at lightbox
+const showZoomImage = useShowZoomImage()
+const zoomImage = useZoomImage()
+const zoomImageList = useZoomImageList()
+const doubleClickHandler = (event) => {
+  if (event.target) {
+    const imageRect = event.target.getBoundingClientRect()
+    zoomImage.value = {
+      src: event.target.src,
+      width: imageRect.width,
+      height: imageRect.height,
+      x: imageRect.x,
+      y: imageRect.y
+    }
+
+    zoomImageList.value = sidebarImgList.value
+    showZoomImage.value = 'show'
+  }
+}
 </script>
 <template>
   <div class="sm:mx-8 lg:mx-0 relative z-10 my-4 border border-gray-200 rounded-lg">
@@ -162,7 +190,8 @@ const scrollingHandler = () => {
         :key="index"
         class="shrink-0 w-full h-full flex justify-center items-center"
       >
-        <Markdown :use="() => item" />
+        <!-- <Markdown :use="() => item" /> -->
+        <img :src="item.props.src" :alt="item.props.alt" @dblclick="doubleClickHandler">
       </div>
     </div>
     <Transition
@@ -216,7 +245,7 @@ const scrollingHandler = () => {
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 .image-list-container {
   &::-webkit-scrollbar {
