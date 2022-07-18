@@ -22,13 +22,7 @@ interface ZoomImageType {
   y: number;
 }
 
-interface ZoomImageListItem {
-  src: string;
-  alt?: string;
-  width: number;
-  height: number;
-}
-
 export const useShowZoomImage = () => useState<'show' | 'hiding' | 'hidden'>('showZoomImage', () => 'hidden')
 export const useZoomImage = () => useState<null | ZoomImageType>('zoomImage', () => null)
-export const useZoomImageList = () => useState<ZoomImageListItem[]>('zoomImageList', () => [])
+export const useCurrentZoomImage = () => useState<null | ZoomImageType>('currentZoomImage', () => null)
+export const useZoomImageList = () => useState<ZoomImageType[]>('zoomImageList', () => [])
