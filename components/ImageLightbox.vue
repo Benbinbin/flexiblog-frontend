@@ -597,7 +597,7 @@ const pointerCancelHandler = (event) => {
   }
 }
 
- .btn {
-   @apply shrink-0 h-20 hidden sm:flex justify-center items-center bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500 border border-purple-500 rounded;
- }
+.btn {
+  @apply shrink-0 h-20 hidden sm:flex justify-center items-center bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500 border border-purple-500 rounded;
+}
 </style>
