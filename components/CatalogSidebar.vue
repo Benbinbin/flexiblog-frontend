@@ -124,23 +124,23 @@ onMounted(() => {
 
 /**
  *
- * resize and move the float catalog
+ * resize the float sidebar
  *
  */
-let currentPointer = null
-let startPointer = null
+let currentResizePointer = null
+let startResizePointer = null
 let startSidebarWidth = 0
 let startSidebarHeight = 0
 let startLeft = 0
 let startBottom = 0
-type ResizeDirectionType = 'up' | 'down' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | ''
-let resizeDirection: ResizeDirectionType = ''
-const pointerDownHandler = (direction, event) => {
+type ResizeDirectionType = 'up' | 'bottom' | 'left' | 'right' | 'up-left' | 'up-right' | 'bottom-left' | 'bottom-right' | ''
+const resizeDirection = ref <ResizeDirectionType>('')
+const resizePointerDownHandler = (direction, event) => {
   if (event) {
     event.currentTarget.setPointerCapture(event.pointerId)
-    currentPointer = event
-    startPointer = event
-    resizeDirection = direction
+    currentResizePointer = event
+    startResizePointer = event
+    resizeDirection.value = direction
     startSidebarWidth = sidebarWidth.value
     startSidebarHeight = sidebarHeight.value
     startLeft = sidebarLeft.value
@@ -148,44 +148,83 @@ const pointerDownHandler = (direction, event) => {
   }
 }
 
-const pointerMoveHandler = (event) => {
-  if (event) {
-    currentPointer = event
-  }
+const resizePointerMoveHandler = (event) => {
+  if (event && startResizePointer) {
+    currentResizePointer = event
 
-  // when pointer move resize the sidebar
-  // because the float sidebar is fixed based on bottom and left
-  // when resize the float sidebar from bottom
-  // should adjust bottom position at the same time
-  if (resizeDirection !== 'left' && resizeDirection !== 'right') {
-    const distance = currentPointer.y - startPointer.y
+    // when pointer move resize the sidebar
+    // because the float sidebar is fixed based on bottom and left
+    // when resize the float sidebar from bottom
+    // should adjust bottom position at the same time
+    if (resizeDirection.value !== 'left' && resizeDirection.value !== 'right') {
+      const distance = currentResizePointer.y - startResizePointer.y
 
-    if (resizeDirection === 'up' || resizeDirection === 'top-left' || resizeDirection === 'top-right') {
-      sidebarHeight.value = startSidebarHeight - distance
-    } else {
-      sidebarHeight.value = startSidebarHeight + distance
-      sidebarBottom.value = startBottom - distance
+      if (resizeDirection.value === 'up' || resizeDirection.value === 'up-left' || resizeDirection.value === 'up-right') {
+        sidebarHeight.value = startSidebarHeight - distance
+      } else {
+        sidebarHeight.value = startSidebarHeight + distance
+        sidebarBottom.value = startBottom - distance
+      }
     }
-  }
 
-  if (resizeDirection !== 'up' && resizeDirection !== 'down') {
-    const distance = currentPointer.x - startPointer.x
+    if (resizeDirection.value !== 'up' && resizeDirection.value !== 'bottom') {
+      const distance = currentResizePointer.x - startResizePointer.x
 
-    if (resizeDirection === 'left' || resizeDirection === 'top-left' || resizeDirection === 'bottom-left') {
-      sidebarWidth.value = startSidebarWidth - distance
-      sidebarLeft.value = startLeft + distance
-    } else {
-      sidebarWidth.value = startSidebarWidth + distance
+      if (resizeDirection.value === 'left' || resizeDirection.value === 'up-left' || resizeDirection.value === 'bottom-left') {
+        sidebarWidth.value = startSidebarWidth - distance
+        sidebarLeft.value = startLeft + distance
+      } else {
+        sidebarWidth.value = startSidebarWidth + distance
+      }
     }
   }
 }
 
-const pointerCancelHandler = () => {
-  currentPointer = null
-  startPointer = null
-  resizeDirection = ''
+const resizePointerCancelHandler = () => {
+  currentResizePointer = null
+  startResizePointer = null
+  resizeDirection.value = ''
   startSidebarWidth = 0
   startSidebarHeight = 0
+}
+
+/**
+ *
+ * move the float sidebar
+ *
+ */
+let currentDragPointer = null
+let startDragPointer = null
+const dragState = ref(false)
+const dragPointerDownHandler = (event) => {
+  if (event) {
+    dragState.value = true
+
+    event.currentTarget.setPointerCapture(event.pointerId)
+    currentDragPointer = event
+    startDragPointer = event
+
+    startLeft = sidebarLeft.value
+    startBottom = sidebarBottom.value
+  }
+}
+
+const dragPointerMoveHandler = (event) => {
+  if (event && startDragPointer) {
+    currentDragPointer = event
+
+    const dx = currentDragPointer.x - startDragPointer.x
+    const dy = currentDragPointer.y - startDragPointer.y
+
+    sidebarLeft.value = startLeft + dx
+    sidebarBottom.value = startBottom - dy
+  }
+}
+
+const dragPointerCancelHandler = () => {
+  dragState.value = false
+  currentDragPointer = null
+  startDragPointer = null
 }
 
 // using interactjs package to make float sidebar interactive
@@ -331,42 +370,60 @@ const toggleAllCatalog = useToggleAllCatalog()
     id="sidebar"
     ref="sidebar"
     tabindex="0"
-    class="flex flex-col justify-center fixed z-30 select-none"
+    class="flex flex-col justify-center fixed z-30 select-none will-change-transform"
     :class="sidebarFloat ? 'bg-gray-100/90 backdrop-blur-sm shadow-md shadow-gray-500 rounded-lg touch-none' : 'top-1/2 right-0 -translate-y-1/2'"
     :style="sidebarFloat ? `left: ${sidebarLeft}px; bottom: ${sidebarBottom}px` : ''"
   >
     <div v-show="sidebarFloat" class="flex">
       <button
         draggable="false"
-        class="shrink-0 group p-1 flex justify-start items-start cursor-nwse-resize touch-none"
-        @pointerdown="pointerDownHandler('top-left', $event)"
-        @pointermove="pointerMoveHandler"
-        @pointercancel="pointerCancelHandler"
-        @pointerup="pointerCancelHandler"
+        class="shrink-0 group pt-1 pl-1 flex justify-start items-start cursor-nwse-resize touch-none rounded-tl-lg"
+        :class="resizeDirection === 'up' || resizeDirection === 'up-left' || resizeDirection === 'up-right' || resizeDirection === 'bottom-left' || resizeDirection === 'left' ? 'bg-purple-200' : ''"
+        @pointerdown="resizePointerDownHandler('up-left', $event)"
+        @pointermove="resizePointerMoveHandler"
+        @pointercancel="resizePointerCancelHandler"
+        @pointerup="resizePointerCancelHandler"
       >
-        <div class="resize-btn-indicator w-1 h-2.5 rounded-b" />
-        <div class="resize-btn-indicator w-1.5 h-1 rounded-r" />
+        <div
+          class="resize-btn-indicator w-1 h-2 rounded-b"
+          :class="resizeDirection === 'up-left' ? 'bg-purple-400': 'bg-gray-400'"
+        />
+        <div
+          class="resize-btn-indicator w-1 h-1 rounded-r"
+          :class="resizeDirection === 'up-left' ? 'bg-purple-400': 'bg-gray-400'"
+        />
       </button>
       <button
         draggable="false"
-        class="grow group p-1 flex justify-center items-start cursor-ns-resize touch-none"
-        @pointerdown="pointerDownHandler('up', $event)"
-        @pointermove="pointerMoveHandler"
-        @pointercancel="pointerCancelHandler"
-        @pointerup="pointerCancelHandler"
+        class="grow group py-1 flex justify-center items-start cursor-ns-resize touch-none"
+        :class="resizeDirection === 'up' || resizeDirection === 'up-left' || resizeDirection === 'up-right' ? 'bg-purple-200' : ''"
+        @pointerdown="resizePointerDownHandler('up', $event)"
+        @pointermove="resizePointerMoveHandler"
+        @pointercancel="resizePointerCancelHandler"
+        @pointerup="resizePointerCancelHandler"
       >
-        <div class="resize-btn-indicator w-10 h-1 rounded" />
+        <div
+          class="resize-btn-indicator w-10 h-1 rounded"
+          :class="resizeDirection === 'up' ? 'bg-purple-400': 'bg-gray-400'"
+        />
       </button>
       <button
         draggable="false"
-        class="shrink-0 group p-1 flex justify-end items-start cursor-nesw-resize touch-none"
-        @pointerdown="pointerDownHandler('top-right', $event)"
-        @pointermove="pointerMoveHandler"
-        @pointercancel="pointerCancelHandler"
-        @pointerup="pointerCancelHandler"
+        class="shrink-0 group pt-1 pr-1 flex justify-end items-start cursor-nesw-resize touch-none rounded-tr-lg"
+        :class="resizeDirection === 'up' || resizeDirection === 'up-left' || resizeDirection === 'up-right' || resizeDirection === 'bottom-right' || resizeDirection === 'right' ? 'bg-purple-200' : ''"
+        @pointerdown="resizePointerDownHandler('up-right', $event)"
+        @pointermove="resizePointerMoveHandler"
+        @pointercancel="resizePointerCancelHandler"
+        @pointerup="resizePointerCancelHandler"
       >
-        <div class="resize-btn-indicator w-1.5 h-1 rounded-l" />
-        <div class="resize-btn-indicator w-1 h-2.5 rounded-b" />
+        <div
+          class="resize-btn-indicator w-1 h-1 rounded-l"
+          :class="resizeDirection === 'up-right' ? 'bg-purple-400': 'bg-gray-400'"
+        />
+        <div
+          class="resize-btn-indicator w-1 h-2 rounded-b"
+          :class="resizeDirection === 'up-right' ? 'bg-purple-400': 'bg-gray-400'"
+        />
       </button>
     </div>
 
@@ -374,27 +431,35 @@ const toggleAllCatalog = useToggleAllCatalog()
       <button
         v-show="sidebarFloat"
         draggable="false"
-        class="group cursor-ew-resize p-1 flex justify-start items-center touch-none"
-        @pointerdown="pointerDownHandler('left', $event)"
-        @pointermove="pointerMoveHandler"
-        @pointercancel="pointerCancelHandler"
-        @pointerup="pointerCancelHandler"
+        class="shrink-0 group cursor-ew-resize px-1 flex justify-start items-center touch-none"
+        :class="resizeDirection === 'up-left' || resizeDirection === 'left' || resizeDirection === 'bottom-left' ? 'bg-purple-200' : ''"
+        @pointerdown="resizePointerDownHandler('left', $event)"
+        @pointermove="resizePointerMoveHandler"
+        @pointercancel="resizePointerCancelHandler"
+        @pointerup="resizePointerCancelHandler"
       >
-        <div class="resize-btn-indicator w-1 h-10 bg-gray-200 group-hover:bg-gray-400 rounded" />
+        <div
+          class="resize-btn-indicator w-1 h-10 rounded"
+          :class="resizeDirection === 'left' ? 'bg-purple-400': 'bg-gray-400'"
+        />
       </button>
       <div
         class="grow flex flex-col justify-start"
         :class="sidebarFloat ? '' : 'max-h-[70vh] pr-2 py-2 '"
         :style="sidebarFloat ? `width: ${sidebarWidth}px; height: ${sidebarHeight}px;` : `width: ${sidebarWidth}px`"
       >
-        <div v-show="sidebarFloat" class="shrink-0 order-1 flex items-center gap-2">
-          <button
-            id="sidebar-dragger"
-            class="grow p-0.5 flex justify-center items-center hover:bg-gray-200 rounded transition-colors duration-300 cursor-move"
-          >
-            <IconCustom name="system-uicons:drag" class="w-4 h-4" />
-          </button>
-        </div>
+        <button
+          v-show="sidebarFloat"
+          draggable="false"
+          class="shrink-0 order-1 group p-1 w-full flex justify-center items-center rounded transition-colors duration-300 cursor-move touch-none"
+          :class="dragState ? 'bg-purple-200 text-purple-800' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200'"
+          @pointerdown="dragPointerDownHandler"
+          @pointermove="dragPointerMoveHandler"
+          @pointercancel="dragPointerCancelHandler"
+          @pointerup="dragPointerCancelHandler"
+        >
+          <IconCustom name="system-uicons:drag" class="w-4 h-4" />
+        </button>
 
         <div
           class="sidebar-btn-container shrink-0 py-2 flex items-center gap-2 overflow-x-auto"
@@ -505,48 +570,70 @@ const toggleAllCatalog = useToggleAllCatalog()
       <button
         v-show="sidebarFloat"
         draggable="false"
-        class="group p-1 flex justify-end items-center cursor-ew-resize touch-none"
-        @pointerdown="pointerDownHandler('right', $event)"
-        @pointermove="pointerMoveHandler"
-        @pointercancel="pointerCancelHandler"
-        @pointerup="pointerCancelHandler"
+        class="shrink-0 group px-1 flex justify-end items-center cursor-ew-resize touch-none"
+        :class="resizeDirection === 'up-right' || resizeDirection === 'right' || resizeDirection === 'bottom-right' ? 'bg-purple-200' : ''"
+        @pointerdown="resizePointerDownHandler('right', $event)"
+        @pointermove="resizePointerMoveHandler"
+        @pointercancel="resizePointerCancelHandler"
+        @pointerup="resizePointerCancelHandler"
       >
-        <div class="resize-btn-indicator w-1 h-10 bg-gray-200 group-hover:bg-gray-400 rounded" />
+        <div
+          class="resize-btn-indicator w-1 h-10 rounded"
+          :class="resizeDirection === 'right' ? 'bg-purple-400': 'bg-gray-400'"
+        />
       </button>
     </div>
 
     <div v-show="sidebarFloat" class="flex">
       <button
         draggable="false"
-        class="shrink-0 group p-1 flex justify-start items-end cursor-nesw-resize touch-none"
-        @pointerdown="pointerDownHandler('bottom-left', $event)"
-        @pointermove="pointerMoveHandler"
-        @pointercancel="pointerCancelHandler"
-        @pointerup="pointerCancelHandler"
+        class="shrink-0 group pl-1 pb-1 flex justify-start items-end cursor-nesw-resize touch-none rounded-bl-lg"
+        :class="resizeDirection === 'bottom' || resizeDirection === 'bottom-left' || resizeDirection === 'bottom-right' || resizeDirection === 'up-left' || resizeDirection === 'left' ? 'bg-purple-200' : ''"
+        @pointerdown="resizePointerDownHandler('bottom-left', $event)"
+        @pointermove="resizePointerMoveHandler"
+        @pointercancel="resizePointerCancelHandler"
+        @pointerup="resizePointerCancelHandler"
       >
-        <div class="resize-btn-indicator w-1 h-2.5 rounded-t" />
-        <div class="resize-btn-indicator w-1.5 h-1 rounded-r" />
+        <div
+          class="resize-btn-indicator w-1 h-2 rounded-t"
+          :class="resizeDirection === 'bottom-left' ? 'bg-purple-400': 'bg-gray-400'"
+        />
+        <div
+          class="resize-btn-indicator w-1 h-1 rounded-r"
+          :class="resizeDirection === 'bottom-left' ? 'bg-purple-400': 'bg-gray-400'"
+        />
       </button>
       <button
         draggable="false"
-        class="grow group p-1 flex justify-center items-end cursor-ns-resize touch-none"
-        @pointerdown="pointerDownHandler('down', $event)"
-        @pointermove="pointerMoveHandler"
-        @pointercancel="pointerCancelHandler"
-        @pointerup="pointerCancelHandler"
+        class="grow group py-1 flex justify-center items-end cursor-ns-resize touch-none"
+        :class="resizeDirection === 'bottom' || resizeDirection === 'bottom-left' || resizeDirection === 'bottom-right' ? 'bg-purple-200' : ''"
+        @pointerdown="resizePointerDownHandler('bottom', $event)"
+        @pointermove="resizePointerMoveHandler"
+        @pointercancel="resizePointerCancelHandler"
+        @pointerup="resizePointerCancelHandler"
       >
-        <div class="resize-btn-indicator w-10 h-1 rounded" />
+        <div
+          class="resize-btn-indicator w-10 h-1 rounded"
+          :class="resizeDirection === 'bottom' ? 'bg-purple-400': 'bg-gray-400'"
+        />
       </button>
       <button
         draggable="false"
-        class="shrink-0 group p-1 flex justify-end items-end cursor-nwse-resize touch-none"
-        @pointerdown="pointerDownHandler('bottom-right', $event)"
-        @pointermove="pointerMoveHandler"
-        @pointercancel="pointerCancelHandler"
-        @pointerup="pointerCancelHandler"
+        class="shrink-0 group pr-1 pb-1 flex justify-end items-end cursor-nwse-resize touch-none rounded-br-lg"
+        :class="resizeDirection === 'bottom' || resizeDirection === 'bottom-left' || resizeDirection === 'bottom-right' || resizeDirection === 'up-right' || resizeDirection === 'right' ? 'bg-purple-200' : ''"
+        @pointerdown="resizePointerDownHandler('bottom-right', $event)"
+        @pointermove="resizePointerMoveHandler"
+        @pointercancel="resizePointerCancelHandler"
+        @pointerup="resizePointerCancelHandler"
       >
-        <div class="resize-btn-indicator w-1.5 h-1 rounded-l" />
-        <div class="resize-btn-indicator w-1 h-2.5 rounded-t" />
+        <div
+          class="resize-btn-indicator w-1 h-1 rounded-l"
+          :class="resizeDirection === 'bottom-right' ? 'bg-purple-400': 'bg-gray-400'"
+        />
+        <div
+          class="resize-btn-indicator w-1 h-2 rounded-t"
+          :class="resizeDirection === 'bottom-right' ? 'bg-purple-400': 'bg-gray-400'"
+        />
       </button>
     </div>
   </aside>
@@ -563,7 +650,7 @@ const toggleAllCatalog = useToggleAllCatalog()
 <style scoped lang="scss">
 
 .resize-btn-indicator {
-  @apply bg-gray-400 opacity-10 group-hover:opacity-100 transition-opacity duration-300;
+  @apply opacity-10 group-hover:opacity-100 transition-opacity duration-300;
 }
 #catalog-container, .sidebar-btn-container {
   &::-webkit-scrollbar {
