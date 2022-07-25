@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// import interact from 'interactjs'
-
 interface CatalogItem {
   id: string;
   depth: number;
@@ -131,11 +129,11 @@ let currentResizePointer = null
 let startResizePointer = null
 let startSidebarWidth = 0
 let startSidebarHeight = 0
-let startLeft = 0
-let startBottom = 0
+let startSidebarLeft = 0
+let startSidebarBottom = 0
 type ResizeDirectionType = 'up' | 'bottom' | 'left' | 'right' | 'up-left' | 'up-right' | 'bottom-left' | 'bottom-right' | ''
 const resizeDirection = ref <ResizeDirectionType>('')
-const resizePointerDownHandler = (direction, event) => {
+const resizeSidebarPointerDownHandler = (direction, event) => {
   if (event) {
     event.currentTarget.setPointerCapture(event.pointerId)
     currentResizePointer = event
@@ -143,12 +141,12 @@ const resizePointerDownHandler = (direction, event) => {
     resizeDirection.value = direction
     startSidebarWidth = sidebarWidth.value
     startSidebarHeight = sidebarHeight.value
-    startLeft = sidebarLeft.value
-    startBottom = sidebarBottom.value
+    startSidebarLeft = sidebarLeft.value
+    startSidebarBottom = sidebarBottom.value
   }
 }
 
-const resizePointerMoveHandler = (event) => {
+const resizeSidebarPointerMoveHandler = (event) => {
   if (event && startResizePointer) {
     currentResizePointer = event
 
@@ -163,7 +161,7 @@ const resizePointerMoveHandler = (event) => {
         sidebarHeight.value = startSidebarHeight - distance
       } else {
         sidebarHeight.value = startSidebarHeight + distance
-        sidebarBottom.value = startBottom - distance
+        sidebarBottom.value = startSidebarBottom - distance
       }
     }
 
@@ -172,7 +170,7 @@ const resizePointerMoveHandler = (event) => {
 
       if (resizeDirection.value === 'left' || resizeDirection.value === 'up-left' || resizeDirection.value === 'bottom-left') {
         sidebarWidth.value = startSidebarWidth - distance
-        sidebarLeft.value = startLeft + distance
+        sidebarLeft.value = startSidebarLeft + distance
       } else {
         sidebarWidth.value = startSidebarWidth + distance
       }
@@ -180,7 +178,7 @@ const resizePointerMoveHandler = (event) => {
   }
 }
 
-const resizePointerCancelHandler = () => {
+const resizeSidebarPointerCancelHandler = () => {
   currentResizePointer = null
   startResizePointer = null
   resizeDirection.value = ''
@@ -193,42 +191,46 @@ const resizePointerCancelHandler = () => {
  * move the float sidebar
  *
  */
-let currentDragPointer = null
-let startDragPointer = null
-const dragState = ref(false)
-const dragPointerDownHandler = (event) => {
+let currentDragSidebarPointer = null
+let startDragSidebarPointer = null
+const dragSidebarState = ref(false)
+const dragSidebarPointerDownHandler = (event) => {
   if (event) {
-    dragState.value = true
+    dragSidebarState.value = true
 
     event.currentTarget.setPointerCapture(event.pointerId)
-    currentDragPointer = event
-    startDragPointer = event
+    currentDragSidebarPointer = event
+    startDragSidebarPointer = event
 
-    startLeft = sidebarLeft.value
-    startBottom = sidebarBottom.value
+    startSidebarLeft = sidebarLeft.value
+    startSidebarBottom = sidebarBottom.value
   }
 }
 
-const dragPointerMoveHandler = (event) => {
-  if (event && startDragPointer) {
-    currentDragPointer = event
+const dragSidebarPointerMoveHandler = (event) => {
+  if (event && startDragSidebarPointer) {
+    currentDragSidebarPointer = event
 
-    const dx = currentDragPointer.x - startDragPointer.x
-    const dy = currentDragPointer.y - startDragPointer.y
+    const dx = currentDragSidebarPointer.x - startDragSidebarPointer.x
+    const dy = currentDragSidebarPointer.y - startDragSidebarPointer.y
 
-    sidebarLeft.value = startLeft + dx
-    sidebarBottom.value = startBottom - dy
+    sidebarLeft.value = startSidebarLeft + dx
+    sidebarBottom.value = startSidebarBottom - dy
   }
 }
 
-const dragPointerCancelHandler = () => {
-  dragState.value = false
-  currentDragPointer = null
-  startDragPointer = null
+const dragSidebarPointerCancelHandler = () => {
+  dragSidebarState.value = false
+  currentDragSidebarPointer = null
+  startDragSidebarPointer = null
 }
 
-// using interactjs package to make float sidebar interactive
-// refer to https://interactjs.io/
+/**
+ *
+ * tree catalog type interaction
+ *
+ */
+const catalogList = ref(null)
 const catalogListScale = ref(1)
 const catalogListTranslateX = ref(0)
 const catalogListTranslateY = ref(0)
@@ -239,96 +241,98 @@ const resetCatalogListScaleHandler = () => {
   catalogListTranslateY.value = 0
 }
 
-onMounted(() => {
-  // set the float sidebar resizable
-  // interact('#sidebar')
-  //   .resizable({
-  //     // resize from all edges and corners
-  //     edges: { left: true, right: true, bottom: true, top: true },
-  //     listeners: {
-  //       move (event) {
-  //         if (sidebarFloat.value || toggleSidebarFloat.value) {
-  //           // when the sidebar float
-  //           // if resize the sidebar
-  //           // update the sidebar size
-  //           sidebarWidth.value = event.rect.width
-  //           sidebarHeight.value = event.rect.height
+// zoom the catalog
+const miniScale = ref(0.5)
+const maxScale = ref(1.5)
+// scroll mouse (or use trackpad) to zoom
+const scrollToZoomCatalogHandler = (event) => {
+  if (floatCatalogType.value === 'tree' && catalogList.value) {
+    // console.log(event)
+    event.stopPropagation()
+    event.preventDefault()
+    const delta = (event.wheelDelta ? event.wheelDelta : -event.deltaY)
 
-  //           // because the float sidebar is fixed based on bottom and left
-  //           // when resize the float sidebar from bottom or left edge
-  //           // should adjust bottom or left position at the same time
-  //           sidebarBottom.value -= event.deltaRect.bottom
-  //           sidebarLeft.value += event.deltaRect.left
-  //         }
-  //       }
-  //     },
-  //     modifiers: [
-  //       // keep the edges inside the parent
-  //       interact.modifiers.restrictEdges({
-  //         outer: 'parent'
-  //       }),
+    // pinch in the trackpad is imitate the wheel event
+    // but the Ctrl key will be always true
+    const dScale = event.ctrlKey ? 0.04 : 0.1
 
-  //       // minimum size restriction
-  //       interact.modifiers.restrictSize({
-  //         min: { width: 200, height: 200 }
-  //       })
-  //     ],
-  //     inertia: true
-  //   })
+    // zoom the catalog
+    const currentScale = delta > 0 ? (catalogListScale.value + dScale) : (catalogListScale.value - dScale)
 
-  // set sidebar draggable
-  // interact('#sidebar-dragger')
-  //   .draggable({
-  //     listeners: {
-  //       move (event) {
-  //         if (sidebarFloat.value || toggleSidebarFloat.value) {
-  //           sidebarLeft.value += event.dx
-  //           sidebarBottom.value -= event.dy
-  //         }
-  //       }
-  //     },
-  //     modifiers: [
-  //       interact.modifiers.restrictRect({
-  //         restriction: 'body',
-  //         endOnly: true
-  //       })
-  //     ],
-  //     inertia: true
-  //   })
+    if (currentScale < miniScale.value || currentScale > maxScale.value) { return }
 
-  // set catalog (inside the float sidebar) scalable (touch screen only) and draggable
-  // function dragMoveListener (event) {
-  //   catalogListTranslateX.value = catalogListTranslateX.value + event.dx
-  //   catalogListTranslateY.value = catalogListTranslateY.value + event.dy
-  // }
+    catalogListScale.value = currentScale
 
-  // interact('#catalog-container')
-  //   .gesturable({
-  //     listeners: {
-  //       move (event) {
-  //         if (floatCatalogType.value === 'tree' && (sidebarFloat.value || toggleSidebarFloat.value)) {
-  //           // two finger pinch to zoom
-  //           catalogListScale.value += event.ds
-  //           // two finger can drag to move
-  //           dragMoveListener(event)
-  //         }
-  //       }
-  //     }
-  //   })
-  //   .draggable({
-  //     // one finger or mouse can drag to move
-  //     listeners: {
-  //       move (event) {
-  //         if (floatCatalogType.value === 'tree' && (sidebarFloat.value || toggleSidebarFloat.value)) {
-  //           dragMoveListener(event)
-  //         }
-  //       }
-  //     }
-  //   })
-})
+    // get the mouse position relative to catalog (left-top as reference point)
+    let mouseRelativeX = event.offsetX
+    let mouseRelativeY = event.offsetY
+
+    // console.log(event)
+    // console.log(event.offsetX, event.offsetY)
+
+    if (event.target !== event.currentTarget) {
+      const eventTargetRect = event.target.getBoundingClientRect()
+      const catalogListRect = catalogList.value.getBoundingClientRect()
+      mouseRelativeX += eventTargetRect.x - catalogListRect.x
+      mouseRelativeY += eventTargetRect.y - catalogListRect.y
+    }
+
+    // console.log(mouseRelativeX, mouseRelativeY)
+
+    // adjust the x and y translate (on the opposite direction) to compensate the offset when scale to imitate scale origin as the mouse point
+    const coefficient = delta > 0 ? dScale : -dScale
+
+    catalogListTranslateX.value += (-mouseRelativeX * coefficient) + (catalogList.value.clientWidth * coefficient / 2)
+    catalogListTranslateY.value += (-mouseRelativeY * coefficient) + (catalogList.value.clientHeight * coefficient / 2)
+  }
+}
+
+// move the catalog
+let currentDragCatalogPointer = null
+let startDragCatalogPointer = null
+let startCatalogListTranslateX = 0
+let startCatalogListTranslateY = 0
+
+// if click these DOM, don't trigger pointer event
+// just execute the default action (change the anchor link of the page URL)
+const exceptTagNames = ['A', 'BUTTON', 'svg', 'path']
+
+const dragCatalogPointerDownHandler = (event) => {
+  if (sidebarFloat.value && floatCatalogType.value === 'tree' && !exceptTagNames.includes(event.target.tagName) && !currentDragCatalogPointer) {
+    event.currentTarget.setPointerCapture(event.pointerId)
+    currentDragCatalogPointer = event
+    startDragCatalogPointer = event
+
+    startCatalogListTranslateX = catalogListTranslateX.value
+    startCatalogListTranslateY = catalogListTranslateY.value
+  }
+}
+
+const dragCatalogPointerMoveHandler = (event) => {
+  if (!currentDragCatalogPointer || event.pointerId !== currentDragCatalogPointer.pointerId) { return }
+  if (sidebarFloat.value && floatCatalogType.value === 'tree' && startDragCatalogPointer) {
+    currentDragCatalogPointer = event
+
+    const dx = currentDragCatalogPointer.x - startDragCatalogPointer.x
+    const dy = currentDragCatalogPointer.y - startDragCatalogPointer.y
+
+    catalogListTranslateX.value = startCatalogListTranslateX + dx
+    catalogListTranslateY.value = startCatalogListTranslateY + dy
+  }
+}
+
+const dragCatalogPointerCancelHandler = (event) => {
+  if (currentDragCatalogPointer && event.pointerId === currentDragCatalogPointer.pointerId) {
+    currentDragCatalogPointer = null
+    startDragCatalogPointer = null
+    startCatalogListTranslateX = 0
+    startCatalogListTranslateY = 0
+  }
+}
 
 // toggle catalog type between "tree" and "list"
 const floatCatalogType = useFloatCatalogType()
+const catalogContainer = ref(null)
 
 const toggleFloatCatalogTypeHandler = () => {
   if (floatCatalogType.value === 'tree') {
@@ -342,10 +346,10 @@ const toggleFloatCatalogTypeHandler = () => {
  *
  * scroll the catalog to top or bottom when catalog type is 'list'
  */
-const catalogContainer = ref(null)
 const scrollCatalogTo = ref('')
 onMounted(() => {
   watch(scrollCatalogTo, () => {
+    // if (sidebarFloat.value && floatCatalogType.value === 'tree') { return }
     if (scrollCatalogTo.value === 'top') {
       catalogContainer.value.scrollTop = 0
     } else if (scrollCatalogTo.value === 'bottom') {
@@ -379,10 +383,10 @@ const toggleAllCatalog = useToggleAllCatalog()
         draggable="false"
         class="shrink-0 group pt-1 pl-1 flex justify-start items-start cursor-nwse-resize touch-none rounded-tl-lg"
         :class="resizeDirection === 'up' || resizeDirection === 'up-left' || resizeDirection === 'up-right' || resizeDirection === 'bottom-left' || resizeDirection === 'left' ? 'bg-purple-200' : ''"
-        @pointerdown="resizePointerDownHandler('up-left', $event)"
-        @pointermove="resizePointerMoveHandler"
-        @pointercancel="resizePointerCancelHandler"
-        @pointerup="resizePointerCancelHandler"
+        @pointerdown="resizeSidebarPointerDownHandler('up-left', $event)"
+        @pointermove="resizeSidebarPointerMoveHandler"
+        @pointercancel="resizeSidebarPointerCancelHandler"
+        @pointerup="resizeSidebarPointerCancelHandler"
       >
         <div
           class="resize-btn-indicator w-1 h-2 rounded-b"
@@ -397,10 +401,10 @@ const toggleAllCatalog = useToggleAllCatalog()
         draggable="false"
         class="grow group py-1 flex justify-center items-start cursor-ns-resize touch-none"
         :class="resizeDirection === 'up' || resizeDirection === 'up-left' || resizeDirection === 'up-right' ? 'bg-purple-200' : ''"
-        @pointerdown="resizePointerDownHandler('up', $event)"
-        @pointermove="resizePointerMoveHandler"
-        @pointercancel="resizePointerCancelHandler"
-        @pointerup="resizePointerCancelHandler"
+        @pointerdown="resizeSidebarPointerDownHandler('up', $event)"
+        @pointermove="resizeSidebarPointerMoveHandler"
+        @pointercancel="resizeSidebarPointerCancelHandler"
+        @pointerup="resizeSidebarPointerCancelHandler"
       >
         <div
           class="resize-btn-indicator w-10 h-1 rounded"
@@ -411,10 +415,10 @@ const toggleAllCatalog = useToggleAllCatalog()
         draggable="false"
         class="shrink-0 group pt-1 pr-1 flex justify-end items-start cursor-nesw-resize touch-none rounded-tr-lg"
         :class="resizeDirection === 'up' || resizeDirection === 'up-left' || resizeDirection === 'up-right' || resizeDirection === 'bottom-right' || resizeDirection === 'right' ? 'bg-purple-200' : ''"
-        @pointerdown="resizePointerDownHandler('up-right', $event)"
-        @pointermove="resizePointerMoveHandler"
-        @pointercancel="resizePointerCancelHandler"
-        @pointerup="resizePointerCancelHandler"
+        @pointerdown="resizeSidebarPointerDownHandler('up-right', $event)"
+        @pointermove="resizeSidebarPointerMoveHandler"
+        @pointercancel="resizeSidebarPointerCancelHandler"
+        @pointerup="resizeSidebarPointerCancelHandler"
       >
         <div
           class="resize-btn-indicator w-1 h-1 rounded-l"
@@ -433,10 +437,10 @@ const toggleAllCatalog = useToggleAllCatalog()
         draggable="false"
         class="shrink-0 group cursor-ew-resize px-1 flex justify-start items-center touch-none"
         :class="resizeDirection === 'up-left' || resizeDirection === 'left' || resizeDirection === 'bottom-left' ? 'bg-purple-200' : ''"
-        @pointerdown="resizePointerDownHandler('left', $event)"
-        @pointermove="resizePointerMoveHandler"
-        @pointercancel="resizePointerCancelHandler"
-        @pointerup="resizePointerCancelHandler"
+        @pointerdown="resizeSidebarPointerDownHandler('left', $event)"
+        @pointermove="resizeSidebarPointerMoveHandler"
+        @pointercancel="resizeSidebarPointerCancelHandler"
+        @pointerup="resizeSidebarPointerCancelHandler"
       >
         <div
           class="resize-btn-indicator w-1 h-10 rounded"
@@ -452,11 +456,11 @@ const toggleAllCatalog = useToggleAllCatalog()
           v-show="sidebarFloat"
           draggable="false"
           class="shrink-0 order-1 group p-1 w-full flex justify-center items-center rounded transition-colors duration-300 cursor-move touch-none"
-          :class="dragState ? 'bg-purple-200 text-purple-800' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200'"
-          @pointerdown="dragPointerDownHandler"
-          @pointermove="dragPointerMoveHandler"
-          @pointercancel="dragPointerCancelHandler"
-          @pointerup="dragPointerCancelHandler"
+          :class="dragSidebarState ? 'bg-purple-200 text-purple-800' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200'"
+          @pointerdown="dragSidebarPointerDownHandler"
+          @pointermove="dragSidebarPointerMoveHandler"
+          @pointercancel="dragSidebarPointerCancelHandler"
+          @pointerup="dragSidebarPointerCancelHandler"
         >
           <IconCustom name="system-uicons:drag" class="w-4 h-4" />
         </button>
@@ -515,22 +519,6 @@ const toggleAllCatalog = useToggleAllCatalog()
 
             <button
               v-show="floatCatalogType === 'tree' && sidebarFloat"
-              class="sidebar-btn hidden sm:flex bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500 border border-purple-400"
-              @click="catalogListScale += 0.1"
-            >
-              <IconCustom name="majesticons:zoom-in-line" class="w-4 h-4" />
-            </button>
-
-            <button
-              v-show="floatCatalogType === 'tree' && sidebarFloat"
-              class="sidebar-btn hidden sm:flex bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500 border border-purple-400"
-              @click="catalogListScale -= 0.1"
-            >
-              <IconCustom name="majesticons:zoom-out-line" class="w-4 h-4" />
-            </button>
-
-            <button
-              v-show="floatCatalogType === 'tree' && sidebarFloat"
               class="sidebar-btn flex bg-purple-100 text-purple-400 hover:text-purple-500 active:text-white active:bg-purple-500 border border-purple-400"
               @click="resetCatalogListScaleHandler"
             >
@@ -546,17 +534,40 @@ const toggleAllCatalog = useToggleAllCatalog()
             <IconCustom name="clarity:window-restore-line" class="w-4 h-4" />
           </button>
         </div>
+        <div
+          v-show="sidebarFloat && floatCatalogType === 'tree'"
+          class="order-4 w-full my-2 flex sm:hidden items-center gap-1"
+        >
+          <label for="zoom-catalog" class="shrink-0 text-gray-400 text-xs">zoom</label>
+          <input
+            id="zoom-catalog"
+            v-model="catalogListScale"
+            type="range"
+            name="zoom"
+            :min="miniScale"
+            :max="maxScale"
+            step="0.01"
+            class="grow h-1.5 accent-purple-400 focus:outline-0"
+          >
+          <span class="shrink-0 w-6 overflow-hidden text-gray-400 text-xs text-center">{{ catalogListScale }}</span>
+        </div>
 
         <div
           id="catalog-container"
           ref="catalogContainer"
           class="grow w-full flex flex-col scroll-smooth overscroll-none"
-          :class="sidebarFloat ? (floatCatalogType === 'tree' ? 'order-2 gap-2 overflow-hidden ' : ' order-2 overflow-y-auto') : 'order-3 overflow-y-auto'"
+          :class="sidebarFloat ? (floatCatalogType === 'tree' ? 'order-2 gap-2 overflow-hidden cursor-move' : ' order-2 overflow-y-auto') : 'order-3 overflow-y-auto'"
+          @pointerdown="dragCatalogPointerDownHandler"
+          @pointermove="dragCatalogPointerMoveHandler"
+          @pointercancel="dragCatalogPointerCancelHandler"
+          @pointerup="dragCatalogPointerCancelHandler"
         >
           <ul
-            class="shrink-0"
+            ref="catalogList"
+            class="shrink-0 overscroll-none"
             :class="sidebarFloat && floatCatalogType === 'tree' ? 'space-y-2 m-4 border-l border-purple-300 rounded-md touch-none' : ''"
             :style="sidebarFloat && floatCatalogType === 'tree' ? `transform: translate(${catalogListTranslateX}px, ${catalogListTranslateY}px) scale(${catalogListScale})` : ''"
+            @wheel="scrollToZoomCatalogHandler"
           >
             <CatalogItem
               v-for="catalog in props.catalogs"
@@ -572,10 +583,10 @@ const toggleAllCatalog = useToggleAllCatalog()
         draggable="false"
         class="shrink-0 group px-1 flex justify-end items-center cursor-ew-resize touch-none"
         :class="resizeDirection === 'up-right' || resizeDirection === 'right' || resizeDirection === 'bottom-right' ? 'bg-purple-200' : ''"
-        @pointerdown="resizePointerDownHandler('right', $event)"
-        @pointermove="resizePointerMoveHandler"
-        @pointercancel="resizePointerCancelHandler"
-        @pointerup="resizePointerCancelHandler"
+        @pointerdown="resizeSidebarPointerDownHandler('right', $event)"
+        @pointermove="resizeSidebarPointerMoveHandler"
+        @pointercancel="resizeSidebarPointerCancelHandler"
+        @pointerup="resizeSidebarPointerCancelHandler"
       >
         <div
           class="resize-btn-indicator w-1 h-10 rounded"
@@ -589,10 +600,10 @@ const toggleAllCatalog = useToggleAllCatalog()
         draggable="false"
         class="shrink-0 group pl-1 pb-1 flex justify-start items-end cursor-nesw-resize touch-none rounded-bl-lg"
         :class="resizeDirection === 'bottom' || resizeDirection === 'bottom-left' || resizeDirection === 'bottom-right' || resizeDirection === 'up-left' || resizeDirection === 'left' ? 'bg-purple-200' : ''"
-        @pointerdown="resizePointerDownHandler('bottom-left', $event)"
-        @pointermove="resizePointerMoveHandler"
-        @pointercancel="resizePointerCancelHandler"
-        @pointerup="resizePointerCancelHandler"
+        @pointerdown="resizeSidebarPointerDownHandler('bottom-left', $event)"
+        @pointermove="resizeSidebarPointerMoveHandler"
+        @pointercancel="resizeSidebarPointerCancelHandler"
+        @pointerup="resizeSidebarPointerCancelHandler"
       >
         <div
           class="resize-btn-indicator w-1 h-2 rounded-t"
@@ -607,10 +618,10 @@ const toggleAllCatalog = useToggleAllCatalog()
         draggable="false"
         class="grow group py-1 flex justify-center items-end cursor-ns-resize touch-none"
         :class="resizeDirection === 'bottom' || resizeDirection === 'bottom-left' || resizeDirection === 'bottom-right' ? 'bg-purple-200' : ''"
-        @pointerdown="resizePointerDownHandler('bottom', $event)"
-        @pointermove="resizePointerMoveHandler"
-        @pointercancel="resizePointerCancelHandler"
-        @pointerup="resizePointerCancelHandler"
+        @pointerdown="resizeSidebarPointerDownHandler('bottom', $event)"
+        @pointermove="resizeSidebarPointerMoveHandler"
+        @pointercancel="resizeSidebarPointerCancelHandler"
+        @pointerup="resizeSidebarPointerCancelHandler"
       >
         <div
           class="resize-btn-indicator w-10 h-1 rounded"
@@ -621,10 +632,10 @@ const toggleAllCatalog = useToggleAllCatalog()
         draggable="false"
         class="shrink-0 group pr-1 pb-1 flex justify-end items-end cursor-nwse-resize touch-none rounded-br-lg"
         :class="resizeDirection === 'bottom' || resizeDirection === 'bottom-left' || resizeDirection === 'bottom-right' || resizeDirection === 'up-right' || resizeDirection === 'right' ? 'bg-purple-200' : ''"
-        @pointerdown="resizePointerDownHandler('bottom-right', $event)"
-        @pointermove="resizePointerMoveHandler"
-        @pointercancel="resizePointerCancelHandler"
-        @pointerup="resizePointerCancelHandler"
+        @pointerdown="resizeSidebarPointerDownHandler('bottom-right', $event)"
+        @pointermove="resizeSidebarPointerMoveHandler"
+        @pointercancel="resizeSidebarPointerCancelHandler"
+        @pointerup="resizeSidebarPointerCancelHandler"
       >
         <div
           class="resize-btn-indicator w-1 h-1 rounded-l"

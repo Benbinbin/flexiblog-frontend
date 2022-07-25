@@ -115,6 +115,7 @@ const activeHeadings = useActiveHeadings()
 
 <template>
   <li
+    draggable="false"
     class="flex"
     :class="(sidebarFloat || toggleSidebarFloat) && catalogType === 'tree' ? 'flex-row justify-start items-center' : 'flex-col'"
   >
