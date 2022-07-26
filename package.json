@@ -13,7 +13,6 @@
     "@nuxtjs/color-mode": "^3.1.4",
     "@nuxtjs/eslint-config-typescript": "^10.0.0",
     "@nuxtjs/tailwindcss": "^5.1.2",
-    "@tailwindcss/typography": "^0.5.2",
     "eslint": "^8.17.0",
     "nuxt": "^3.0.0-rc.4",
     "sass": "^1.52.3",
@@ -23,6 +22,7 @@
     "rehype-katex": "^6.0.2",
     "remark-math": "^5.1.1",
     "remark-sub": "file:./markdownPlugins/remark-sub",
-    "remark-super": "file:./markdownPlugins/remark-super"
+    "remark-super": "file:./markdownPlugins/remark-super",
+    "remark-critic-markup": "file:./markdownPlugins/remark-critic-markup"
   }
 }
