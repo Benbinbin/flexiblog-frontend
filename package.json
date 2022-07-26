@@ -22,6 +22,7 @@
   "dependencies": {
     "rehype-katex": "^6.0.2",
     "remark-math": "^5.1.1",
-    "unist-util-visit": "^4.1.0"
+    "remark-sub": "file:./markdownPlugins/remark-sub",
+    "remark-super": "file:./markdownPlugins/remark-super"
   }
 }

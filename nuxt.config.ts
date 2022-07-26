@@ -78,7 +78,7 @@ export default defineNuxtConfig({
         depth: 5,
         searchDepth: 5
       },
-      remarkPlugins: ['remark-math'],
+      remarkPlugins: ['remark-math', 'remark-sub', 'remark-super'],
       rehypePlugins: {
         'rehype-katex': {
           output: 'htmlAndMathml'
