@@ -10,10 +10,15 @@ import { visit } from 'unist-util-visit'
 // * syntax: --deletion--
 // * HTML: <del class="critic deletion">deletion</del>
 
-// Substitution: ~~remove~>substitution~~ (this syntax may conflict with the remark-gfm strikethrough syntax https://github.com/remarkjs/remark-gfm maybe this syntax can be replaced by Addition and Deletion syntax, so this redundant syntax won't transform in this package)
+// Substitution:
+// syntax: ~~remove~>substitution~~
+// this syntax may conflict with the remark-gfm strikethrough syntax https://github.com/remarkjs/remark-gfm maybe this syntax can be replaced by Addition and Deletion syntax
+// so this redundant syntax won't transform in this package
 
 // Comment
-// * syntax: >>comment<<
+// syntax(origin): >>comment<<
+// this syntax may conflict with the markdown blockquote syntax https://commonmark.org/help/
+// * syntax(adjust): //comment//
 // * HTML: <span class="critic comment">comment</span>
 
 // Highlight
@@ -22,7 +27,7 @@ import { visit } from 'unist-util-visit'
 
 const AddRegex = /\+\+[^++]+\+\+/g
 const DeleteRegex = /--[^--]+--/g
-const commentRegex = />>[^<<]+<</g
+const commentRegex = /\/\/[^//]+\/\//g
 const highlightRegex = /==[^==]+==/g
 
 // refer to https://github.com/rhysd/remark-emoji
@@ -34,25 +39,25 @@ export default function remarkCriticMarkup () {
 
       if (AddRegex.test(newValue)) {
         newValue = newValue.replace(AddRegex, (match) => {
-          return '<ins class="critic addition">' + match.substring(2, match.length - 2) + '</ins>'
+          return '<ins class="critic-addition">' + match.substring(2, match.length - 2) + '</ins>'
         })
       }
 
       if (DeleteRegex.test(newValue)) {
         newValue = newValue.replace(DeleteRegex, (match) => {
-          return '<del class="critic deletion">' + match.substring(2, match.length - 2) + '</del>'
+          return '<del class="critic-deletion">' + match.substring(2, match.length - 2) + '</del>'
         })
       }
 
       if (commentRegex.test(newValue)) {
         newValue = newValue.replace(commentRegex, (match) => {
-          return '<span class="critic comment">' + match.substring(2, match.length - 2) + '</span>'
+          return '<span class="critic-comment">' + match.substring(2, match.length - 2) + '</span>'
         })
       }
 
       if (highlightRegex.test(newValue)) {
         newValue = newValue.replace(highlightRegex, (match) => {
-          return '<mark class="critic highlight">' + match.substring(2, match.length - 2) + '</mark>'
+          return '<mark class="critic-highlight">' + match.substring(2, match.length - 2) + '</mark>'
         })
       }
 

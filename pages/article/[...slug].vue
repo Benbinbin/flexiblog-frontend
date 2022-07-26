@@ -150,7 +150,7 @@ onMounted(() => {
 <style lang="scss">
 .article-container {
   * {
-    @apply selection:bg-purple-400 selection:text-white
+    @apply selection:bg-purple-400 selection:text-white;
   }
 
   p a {
@@ -205,15 +205,15 @@ onMounted(() => {
   p,
   blockquote,
   dl {
-    @apply my-4
+    @apply my-4;
   }
 
   table {
-    @apply my-0.5
+    @apply my-0.5;
   }
 
   hr {
-    @apply text-gray-400
+    @apply text-gray-400;
   }
 
   ul,
@@ -221,7 +221,7 @@ onMounted(() => {
     @apply pl-4 my-2;
 
     li {
-      @apply my-1
+      @apply my-1;
     }
   }
 
@@ -235,16 +235,16 @@ onMounted(() => {
 
   dl {
     dt {
-      @apply font-bold italic my-2
+      @apply font-bold italic my-2;
     }
 
     dd {
-      @apply pl-4
+      @apply pl-4;
     }
   }
 
   blockquote {
-    @apply px-2 border-l-4 border-gray-300
+    @apply px-2 border-l-4 border-gray-300;
   }
 
   table {
@@ -257,16 +257,32 @@ onMounted(() => {
 
     th,
     td {
-      @apply px-4 py-2 border border-gray-200 text-center
+      @apply px-4 py-2 border border-gray-200 text-center;
     }
   }
 
   code {
-    @apply px-1 py-0.5 mx-0.5 text-sm bg-gray-100 border rounded
+    @apply px-1 py-0.5 mx-0.5 text-sm bg-gray-100 border rounded;
   }
 
   .math {
-    @apply px-2 py-1 border-2 border-transparent rounded-md select-none transition-colors duration-300
+    @apply px-2 py-1 border-2 border-transparent rounded-md select-none transition-colors duration-300;
+  }
+
+  .critic-addition {
+    @apply bg-green-200 decoration-green-400 ;
+  }
+
+  del, .critic-deletion {
+    @apply bg-red-200 decoration-red-400;
+  }
+
+  mark, .critic-highlight {
+    @apply bg-yellow-200;
+  }
+
+  .critic-comment {
+    @apply bg-purple-200;
   }
 }
 </style>
