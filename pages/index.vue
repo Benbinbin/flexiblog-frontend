@@ -80,7 +80,7 @@ onUnmounted(() => {
               </div>
             </template>
           </ContentDoc>
-          <img src="avatar.png" alt="avatar" class="hidden sm:block w-28 h-28 rounded-full">
+          <img src="/avatar.png" alt="avatar" class="hidden sm:block w-28 h-28 rounded-full">
         </div>
       </div>
       <div v-if="articleFolder" class="container p-8 mx-auto space-y-8">

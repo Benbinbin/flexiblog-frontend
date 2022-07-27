@@ -146,7 +146,7 @@ $$
 ![1058](https://picsum.photos/id/1058/1000)
 ::
 
-## 脚注
+
 
 [^1]: This is the first number footnote.
 [^2]: This is the first number footnote.
