@@ -1,3 +1,5 @@
+:warning: Please check out the successor reposity https://github.com/Benbinbin/BlogiNote
+
 [![Content Wind](https://github.com/Atinux/content-wind/raw/main/public/cover.jpg)](https://content-wind.nuxt.dev)
 
 # Content Wind
